@@ -46,7 +46,7 @@ let randomChar (hist : int list) : char =
 /// to a histogram. </summary>
 /// <param name = "hist"> A list of histogram values </param>
 /// <param name = "len"> The length of the resulting string </param>
-/// <returns> A string of lenth len whose values are independently drawn from a
+/// <returns> A string of length len whose values are independently drawn from a
 /// distribution resembling hist </returns>
 let randomString (hist : int list) (len : int) : string =
   String.init len (fun _ -> string (randomChar hist))
@@ -85,12 +85,50 @@ let histogram (str : string) : int list =
       if c = (alphabet.[i]) then string c else "") 
         (convertText str)))
 
+let diff (h1 : (int list)) (h2 : (int list)) : (double) =
+  if (h1.Length <> alphabet.Length || h2.Length <> alphabet.Length) then
+    0.0
+  else
+    // let len = (List.fold (fun acc1 elem -> acc1 + (float elem)) 0.0 h1)
+    ((List.fold2 (fun acc elem1 elem2 -> acc + pown ((float elem1)-(float elem2)) 2) 0.0 h1 h2)/float (List.rev (cumSum h1)).Head)
+  
+let TheStory = readText "littleClausAndBigClaus.txt" 
+let histTheStory = histogram TheStory
+let randomText = randomString histTheStory (convertText TheStory).Length
+printfn "Histogram of randomText %A" (histogram randomText)
+printfn "Difference between the Histograms : %A" (diff histTheStory (histogram randomText)) 
+printfn "Testing the difference: (diff histTheStory (histogram randomText)) <= 0.7 : %b" ((diff histTheStory (histogram randomText)) <= 0.7)
 
-printfn "White-box testing of readText" 
-//printfn "readText: testTextAnalysis.fsx = testTextAnalysis.fsx : %A" (readText "testTextAnalysis.fsx")
-printfn "convertText: kdjlh laiudf = kdjlh laiudf : %A" (convertText "kdjlh laiudf")
-printfn "convertText: kf19dk2 = kfdk : %A" (convertText "kf19dk2")
-printfn "convertText:      =       : %A" (convertText "    ")
-printfn "convertText: 11d9 kd91d = d kdd : %A" (convertText "11d9 kd91d")
-printfn "convertText: *dj, ud. 92 = dj ud  : %A" (convertText "*dj, ud. 92")
-// huske store bogstaver
+let rec find (i : int) (ch : char): int =
+  if i = alphabet.Length then
+    0
+  else if alphabet.[i] = ch then
+    i
+  else
+    find (i+1) ch
+  
+let rec coFunc (src : string) (arr : int [,]) = //(lst : int list list) : (int list list) =
+  if (String.length src <> 1) then
+    let ch1 = find 0 src.[0]
+    let ch2 = find 0 src.[1]
+    arr.[ch1,ch2] <- arr.[ch1,ch2]+1
+    coFunc src.[1..] arr
+  else
+    arr
+
+let toArray arr =
+    let ($) (bas, len) f = Array.init len ((+) bas >> f)
+    (Array2D.base1 arr, Array2D.length1 arr) $ fun x ->
+        (Array2D.base2 arr, Array2D.length2 arr) $ fun y ->
+            arr.[x, y]
+
+let cooccurrence (src : string) = //: (int list list) =
+  let arrLst = Array2D.create (alphabet.Length) (alphabet.Length) 0
+  List.ofArray (Array.map List.ofArray (toArray (coFunc src arrLst)))
+
+let cooc = cooccurrence (convertText (readText ("littleClausAndBigClaus.text")))
+
+for i=0 to (List.length alphabet)-1 do
+    for j=0 to (List.length alphabet)-1 do
+        printf "%3d " cooc.[i].[j]
+    printf "\n"

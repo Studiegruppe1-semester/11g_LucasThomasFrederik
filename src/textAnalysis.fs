@@ -48,7 +48,7 @@ let randomChar (hist : int list) : char =
 /// to a histogram. </summary>
 /// <param name = "hist"> A list of histogram values </param>
 /// <param name = "len"> The length of the resulting string </param>
-/// <returns> A string of lenth len whose values are independently drawn from a
+/// <returns> A string of length len whose values are independently drawn from a
 /// distribution resembling hist </returns>
 let randomString (hist : int list) (len : int) : string =
   String.init len (fun _ -> string (randomChar hist))
@@ -75,8 +75,8 @@ let convertText (src:string) : string =
 // Could have used match and checked for uppercase letters and replaced
 // them with lowercase, else check if the character isn't in the alphabet.
 
-/// <summary> Generate a histogram of the characters 'a'..'z' in a given
-/// string. </summary>
+/// <summary> Generate a histogram of the characters 'a'..'z' and ' ' in a given
+/// string.</summary>
 /// <param name = "str"> Any string consisting of the characters: 'a'..'z' and
 /// ' ' in any order. </param>
 /// <returns> A list of character counts, with the first element is the count of
@@ -87,5 +87,17 @@ let histogram (str : string) : int list =
       if c = (alphabet.[i]) then string c else "") 
         (convertText str)))
 
+/// <summary> </summary>
+/// <param name = "h1"> </param>
+/// <param name = "h2"> </param>
+/// <returns>A double</returns>
+let diff (h1 : (int list)) (h2 : (int list)) : (double) =
+  if (h1.Length <> alphabet.Length || h2.Length <> alphabet.Length) then
+    0.0
+  else
+    // let len = (List.fold (fun acc1 elem -> acc1 + (float elem)) 0.0 h1)
+    ((List.fold2 (fun acc elem1 elem2 -> acc + pown ((float elem1)-(float elem2)) 2) 0.0 h1 h2)/float (List.rev (cumSum h1)).Head)
 
-// let diff (h1: int list) (h2 : int list) : double =
+let cooccurrence (src : string) : (int list list) =
+  
+
