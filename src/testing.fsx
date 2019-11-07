@@ -1,5 +1,3 @@
-module textAnalysis
-
 /// <summary> Calculate the cumulative sum of a list of integers from the first
 /// to the last element. First element is the first number in the original list,
 /// last element is the sum of all integers in the original list. </summary>
@@ -143,3 +141,8 @@ let cooccurrence (src : string) : (int list list) =
     List.init (alphabet.Length) (fun j ->
       arrLst.[i,j]))
 
+let cooc = cooccurrence (convertText (readText ("littleClausAndBigClaus.txt")))
+for i=0 to (List.length alphabet)-1 do
+  for j=0 to (List.length alphabet)-1 do
+      printf "%3d " cooc.[i].[j]
+  printf "\n"
