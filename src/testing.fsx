@@ -74,40 +74,55 @@ let convertText (src:string) : string =
 // them with lowercase, else check if the character isn't in the alphabet.
 
 /// <summary> Generate a histogram of the characters 'a'..'z' in a given
-/// string. </summary>
+/// string.</summary>
 /// <param name = "str"> Any string consisting of the characters: 'a'..'z' and
-/// ' ' in any order. </param>
+/// ' ' in any order.</param>
 /// <returns> A list of character counts, with the first element is the count of
-/// 'a's in str, second the count of 'b's etc. </returns>
+/// 'a's in str, second the count of 'b's etc.</returns>
 let histogram (str : string) : int list =
   List.init (alphabet.Length) (fun i -> 
     String.length (String.collect (fun c -> 
       if c = (alphabet.[i]) then string c else "") 
         (convertText str)))
 
+/// <summary></summary>
+/// <param name = ""></param>
+/// <param name = ""></param>
+/// <returns></returns>
 let diff (h1 : (int list)) (h2 : (int list)) : (double) =
   if (h1.Length <> alphabet.Length || h2.Length <> alphabet.Length) then
     0.0
   else
     // let len = (List.fold (fun acc1 elem -> acc1 + (float elem)) 0.0 h1)
     ((List.fold2 (fun acc elem1 elem2 -> acc + pown ((float elem1)-(float elem2)) 2) 0.0 h1 h2)/float (List.rev (cumSum h1)).Head)
-  
+
 let TheStory = readText "littleClausAndBigClaus.txt" 
 let histTheStory = histogram TheStory
 let randomText = randomString histTheStory (convertText TheStory).Length
 printfn "Histogram of randomText %A" (histogram randomText)
-printfn "Difference between the Histograms : %A" (diff histTheStory (histogram randomText)) 
+printfn "Difference between the Histograms : %A" (diff histTheStory (histogram randomText))
 printfn "Testing the difference: (diff histTheStory (histogram randomText)) <= 0.7 : %b" ((diff histTheStory (histogram randomText)) <= 0.7)
 
-let rec find (i : int) (ch : char): int =
-  if i = alphabet.Length then
-    0
+/// <summary>Finds the index of a given char in the alphabet</summary>
+/// <param name = "i">The counter/index or "position" in the alphabet.</param>
+/// <param name = "ch"> The character to find the index of in the alphabet.</param>
+/// <returns>The index of the character in the alphabet, 
+/// or 26 if we have reached the last position in the alphabet</returns>
+let rec find (i : int) (ch : char) : int =
+  if i = (alphabet.Length-1) then
+    26
   else if alphabet.[i] = ch then
     i
   else
     find (i+1) ch
-  
-let rec coFunc (src : string) (arr : int [,]) = //(lst : int list list) : (int list list) =
+
+/// <summary></summary>
+/// <param name = ""></param>
+/// <param name = ""></param>
+/// <param name = ""></param>
+/// <returns></returns>
+let rec coFunc (src : string) (arr : int [,]) : (int [,]) =
+  // The last character in 
   if (String.length src <> 1) then
     let ch1 = find 0 src.[0]
     let ch2 = find 0 src.[1]
@@ -116,19 +131,18 @@ let rec coFunc (src : string) (arr : int [,]) = //(lst : int list list) : (int l
   else
     arr
 
-let toArray arr =
-    let ($) (bas, len) f = Array.init len ((+) bas >> f)
-    (Array2D.base1 arr, Array2D.length1 arr) $ fun x ->
-        (Array2D.base2 arr, Array2D.length2 arr) $ fun y ->
-            arr.[x, y]
+/// <summary></summary>
+/// <param name = "src"> The text to analyse</param>
+/// <returns></returns>
+let cooccurrence (src : string) : (int list list) =
+  let arrLst =  coFunc src (Array2D.create (alphabet.Length) (alphabet.Length) 0)
+  List.init (alphabet.Length) (fun i -> 
+    List.init (alphabet.Length) (fun j -> 
+      arrLst.[i,j]))
 
-let cooccurrence (src : string) = //: (int list list) =
-  let arrLst = Array2D.create (alphabet.Length) (alphabet.Length) 0
-  List.ofArray (Array.map List.ofArray (toArray (coFunc src arrLst)))
-
-let cooc = cooccurrence (convertText (readText ("littleClausAndBigClaus.text")))
+let cooc = cooccurrence (convertText (readText ("littleClausAndBigClaus.txt")))
 
 for i=0 to (List.length alphabet)-1 do
-    for j=0 to (List.length alphabet)-1 do
-        printf "%3d " cooc.[i].[j]
-    printf "\n"
+  for j=0 to (List.length alphabet)-1 do
+      printf "%3d " cooc.[i].[j]
+  printf "\n"
