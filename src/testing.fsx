@@ -1,3 +1,5 @@
+module textAnalysis
+
 /// <summary> Calculate the cumulative sum of a list of integers from the first
 /// to the last element. First element is the first number in the original list,
 /// last element is the sum of all integers in the original list. </summary>
@@ -73,22 +75,22 @@ let convertText (src:string) : string =
 // Could have used match and checked for uppercase letters and replaced
 // them with lowercase, else check if the character isn't in the alphabet.
 
-/// <summary> Generate a histogram of the characters 'a'..'z' in a given
+/// <summary> Generate a histogram of the characters 'a'..'z' and ' ' in a given
 /// string.</summary>
 /// <param name = "str"> Any string consisting of the characters: 'a'..'z' and
-/// ' ' in any order.</param>
+/// ' ' in any order. </param>
 /// <returns> A list of character counts, with the first element is the count of
-/// 'a's in str, second the count of 'b's etc.</returns>
+/// 'a's in str, second the count of 'b's etc. </returns>
 let histogram (str : string) : int list =
   List.init (alphabet.Length) (fun i -> 
     String.length (String.collect (fun c -> 
       if c = (alphabet.[i]) then string c else "") 
         (convertText str)))
 
-/// <summary></summary>
-/// <param name = ""></param>
-/// <param name = ""></param>
-/// <returns></returns>
+/// <summary> </summary>
+/// <param name = "h1"> </param>
+/// <param name = "h2"> </param>
+/// <returns>A double</returns>
 let diff (h1 : (int list)) (h2 : (int list)) : (double) =
   if (h1.Length <> alphabet.Length || h2.Length <> alphabet.Length) then
     0.0
@@ -96,53 +98,48 @@ let diff (h1 : (int list)) (h2 : (int list)) : (double) =
     // let len = (List.fold (fun acc1 elem -> acc1 + (float elem)) 0.0 h1)
     ((List.fold2 (fun acc elem1 elem2 -> acc + pown ((float elem1)-(float elem2)) 2) 0.0 h1 h2)/float (List.rev (cumSum h1)).Head)
 
-let TheStory = readText "littleClausAndBigClaus.txt" 
-let histTheStory = histogram TheStory
-let randomText = randomString histTheStory (convertText TheStory).Length
-printfn "Histogram of randomText %A" (histogram randomText)
-printfn "Difference between the Histograms : %A" (diff histTheStory (histogram randomText))
-printfn "Testing the difference: (diff histTheStory (histogram randomText)) <= 0.7 : %b" ((diff histTheStory (histogram randomText)) <= 0.7)
-
-/// <summary>Finds the index of a given char in the alphabet</summary>
-/// <param name = "i">The counter/index or "position" in the alphabet.</param>
+/// <summary> Finds the index of a given char in the alphabet</summary>
+/// <param name = "i"> The counter/index or "position" in the alphabet.</param>
 /// <param name = "ch"> The character to find the index of in the alphabet.</param>
-/// <returns>The index of the character in the alphabet, 
+/// <returns> The index of the character in the alphabet, 
 /// or 26 if we have reached the last position in the alphabet</returns>
 let rec find (i : int) (ch : char) : int =
+  // If we reached the last character in the alphabet, 
+  // we assume this is the position
   if i = (alphabet.Length-1) then
-    26
+    alphabet.Length-1
   else if alphabet.[i] = ch then
     i
   else
     find (i+1) ch
 
-/// <summary></summary>
-/// <param name = ""></param>
-/// <param name = ""></param>
-/// <param name = ""></param>
-/// <returns></returns>
+/// <summary> Counts the occurences of each pair of characters.</summary>
+/// <param name = "src"> The text or string to analyze.</param>
+/// <param name = "arr"> The array in where the counts are remembered.</param>
+/// <returns>A 2D array (array of arrays), listing the amount of times each 
+/// pair is in the text. The array will be turned into a list</returns>
 let rec coFunc (src : string) (arr : int [,]) : (int [,]) =
-  // The last character in 
+  // The last character in the text has no next character
+  // to form a pair with.
   if (String.length src <> 1) then
     let ch1 = find 0 src.[0]
     let ch2 = find 0 src.[1]
+    // We add 1 to the amount of times the given pair exists
+    // at the given position.
     arr.[ch1,ch2] <- arr.[ch1,ch2]+1
     coFunc src.[1..] arr
   else
     arr
 
-/// <summary></summary>
-/// <param name = "src"> The text to analyse</param>
-/// <returns></returns>
+/// <summary> Creates a 2D array, and calls coFunc, which
+/// counts the occurences of each pair of characters. The array is
+/// then transformed into a list of lists.</summary>
+/// <param name = "src"> The text or string to analyze.</param>
+/// <returns> A list of lists, containing the amount of occurences each pair 
+/// of characters appear in the text.</returns>
 let cooccurrence (src : string) : (int list list) =
   let arrLst =  coFunc src (Array2D.create (alphabet.Length) (alphabet.Length) 0)
-  List.init (alphabet.Length) (fun i -> 
-    List.init (alphabet.Length) (fun j -> 
+  List.init (alphabet.Length) (fun i ->
+    List.init (alphabet.Length) (fun j ->
       arrLst.[i,j]))
 
-let cooc = cooccurrence (convertText (readText ("littleClausAndBigClaus.txt")))
-
-for i=0 to (List.length alphabet)-1 do
-  for j=0 to (List.length alphabet)-1 do
-      printf "%3d " cooc.[i].[j]
-  printf "\n"

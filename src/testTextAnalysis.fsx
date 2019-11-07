@@ -39,3 +39,17 @@ printfn "histogram: abcd abcd abcd = [3; 3; 3; 3; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 
 // printfn "Histogram of newtext %A" (histNewText)
 // printfn "Histogram of randomText2 %A" (randomText2)
 // printfn "Difference between the Histograms : %A" (diff histNewText randomText2) 
+
+
+// let TheStory = readText "littleClausAndBigClaus.txt" 
+// let histTheStory = histogram TheStory
+// let randomText = randomString histTheStory (convertText TheStory).Length
+// printfn "Histogram of randomText %A" (histogram randomText)
+// printfn "Difference between the Histograms : %A" (diff histTheStory (histogram randomText))
+// printfn "Testing the difference: (diff histTheStory (histogram randomText)) <= 0.7 : %b" ((diff histTheStory (histogram randomText)) <= 0.7)
+
+// let cooc = cooccurrence (convertText (readText ("littleClausAndBigClaus.txt")))
+// for i=0 to (List.length alphabet)-1 do
+//   for j=0 to (List.length alphabet)-1 do
+//       printf "%3d " cooc.[i].[j]
+//   printf "\n"

@@ -98,6 +98,48 @@ let diff (h1 : (int list)) (h2 : (int list)) : (double) =
     // let len = (List.fold (fun acc1 elem -> acc1 + (float elem)) 0.0 h1)
     ((List.fold2 (fun acc elem1 elem2 -> acc + pown ((float elem1)-(float elem2)) 2) 0.0 h1 h2)/float (List.rev (cumSum h1)).Head)
 
+/// <summary> Finds the index of a given char in the alphabet</summary>
+/// <param name = "i"> The counter/index or "position" in the alphabet.</param>
+/// <param name = "ch"> The character to find the index of in the alphabet.</param>
+/// <returns> The index of the character in the alphabet, 
+/// or 26 if we have reached the last position in the alphabet</returns>
+let rec find (i : int) (ch : char) : int =
+  // If we reached the last character in the alphabet, 
+  // we assume this is the position
+  if i = (alphabet.Length-1) then
+    alphabet.Length-1
+  else if alphabet.[i] = ch then
+    i
+  else
+    find (i+1) ch
+
+/// <summary> Counts the occurences of each pair of characters.</summary>
+/// <param name = "src"> The text or string to analyze.</param>
+/// <param name = "arr"> The array in where the counts are remembered.</param>
+/// <returns>A 2D array (array of arrays), listing the amount of times each 
+/// pair is in the text. The array will be turned into a list</returns>
+let rec coFunc (src : string) (arr : int [,]) : (int [,]) =
+  // The last character in the text has no next character
+  // to form a pair with.
+  if (String.length src <> 1) then
+    let ch1 = find 0 src.[0]
+    let ch2 = find 0 src.[1]
+    // We add 1 to the amount of times the given pair exists
+    // at the given position.
+    arr.[ch1,ch2] <- arr.[ch1,ch2]+1
+    coFunc src.[1..] arr
+  else
+    arr
+
+/// <summary> Creates a 2D array, and calls coFunc, which
+/// counts the occurences of each pair of characters. The array is
+/// then transformed into a list of lists.</summary>
+/// <param name = "src"> The text or string to analyze.</param>
+/// <returns> A list of lists, containing the amount of occurences each pair 
+/// of characters appear in the text.</returns>
 let cooccurrence (src : string) : (int list list) =
-  
+  let arrLst =  coFunc src (Array2D.create (alphabet.Length) (alphabet.Length) 0)
+  List.init (alphabet.Length) (fun i ->
+    List.init (alphabet.Length) (fun j ->
+      arrLst.[i,j]))
 
