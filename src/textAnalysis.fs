@@ -93,10 +93,11 @@ let histogram (str : string) : int list =
 /// <returns>A double</returns>
 let diff (h1 : (int list)) (h2 : (int list)) : (double) =
   if (h1.Length <> alphabet.Length || h2.Length <> alphabet.Length) then
-    0.0
+    -1.0
   else
-    // let len = (List.fold (fun acc1 elem -> acc1 + (float elem)) 0.0 h1)
-    ((List.fold2 (fun acc elem1 elem2 -> acc + pown ((float elem1)-(float elem2)) 2) 0.0 h1 h2)/float (List.rev (cumSum h1)).Head)
+    (List.fold2 (fun acc elem1 elem2 ->
+      acc + pown ((float elem1)-(float elem2)) 2) 0.0 h1 h2)
+        /(float alphabet.Length)
 
 /// <summary> Finds the index of a given char in the alphabet</summary>
 /// <param name = "i"> The counter/index or "position" in the alphabet.</param>
@@ -131,15 +132,56 @@ let rec coFunc (src : string) (arr : int [,]) : (int [,]) =
   else
     arr
 
-/// <summary> Creates a 2D array, and calls coFunc, which
-/// counts the occurences of each pair of characters. The array is
-/// then transformed into a list of lists.</summary>
+/// <summary> Counts the occurences of each pair of characters.</summary>
 /// <param name = "src"> The text or string to analyze.</param>
 /// <returns> A list of lists, containing the amount of occurences each pair 
 /// of characters appear in the text.</returns>
 let cooccurrence (src : string) : (int list list) =
-  let arrLst =  coFunc src (Array2D.create (alphabet.Length) (alphabet.Length) 0)
+  let arrLst =  coFunc src (Array2D.create alphabet.Length alphabet.Length 0)
   List.init (alphabet.Length) (fun i ->
     List.init (alphabet.Length) (fun j ->
       arrLst.[i,j]))
+
+/// <summary> Generate a random string with the given length, and character
+/// pairs distributed according to the given cooccurence histogram. </summary>
+/// <param name = "len"> The length of the string to generate.</param>
+/// <param name = "cooc"> A cooccurence histogram to generate char pairs from.</param>
+/// <param name = "str"> A string containing at least 1 char, where the last 
+/// char in the string will be used to generate the next char.</param>
+/// <returns> A string with the length len of randomly generated character pairs,
+/// with each char being "randomly" generated from the (histogram of the) char before it.</returns>
+let rec markovChainHelper (len : int) (cooc : (int list list)) (str : string) : string =
+  // This function is used to generate the random string.
+  if (str.Length >= len-1) then
+  // We call randomChar with the "histogram" of the current char
+  // to generate the next char in the string.
+    str + string (randomChar cooc.[find 0 str.[str.Length-1]])
+  else
+    markovChainHelper len cooc (str + string (randomChar cooc.[find 0 str.[str.Length-1]]))
+
+/// <summary> Generate a random string with the given length, 
+/// whose character pairs are distributed according to the given
+/// cooccurence histogram.</summary>
+/// <param name = "cooc"> A cooccurence histogram to generate char pairs from.</param>
+/// <param name = "len"> The length of the string to generate.</param>
+/// <returns> A randomly generated string with given length and character 
+/// pairs distributed according to the cooccurence histogram</returns>
+let markovChain (cooc : (int list list)) (len : int) : string =
+  // This function only generates the first random character in the
+  // randomly generated string, the rest is created in markovCHainHelper
+  markovChainHelper len cooc (string (randomChar cooc.[cooc.Length-1]))
+  // We start by generating a char from the "histogram" of pairs where " " (space)
+  // is the initial character, since it is the most likely to give us a general
+  // overview (or "histogram") of the characters,
+  // and thats why it is the best starting choice
+
+/// <summary> </summary>
+/// <param name = "c1"> </param>
+/// <param name = "c2"> </param>
+/// <returns>A double</returns>
+let diff2 (c1 : (int list list)) (c2 : (int list list)) : double =
+  if (c1.Head.Length <> alphabet.Length || c2.Head.Length <> alphabet.Length) then
+    -1.0
+  else
+    List.sum (List.init alphabet.Length (fun i -> diff c1.[i] c2.[i]))/(float alphabet.Length)
 
