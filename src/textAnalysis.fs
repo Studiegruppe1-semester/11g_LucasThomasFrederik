@@ -114,33 +114,38 @@ let rec find (i : int) (ch : char) : int =
   else
     find (i+1) ch
 
+let newLst (ch1 : int) (ch2 : int) (lst : (int list list)) : (int list list) =
+  (List.mapi (fun i x ->
+    if (i = ch1) then
+      (List.mapi (fun j y -> if j = ch2 then (y + 1) else y ) x)
+        else lst.[i]) lst)
+
 /// <summary> Counts the occurences of each pair of characters.</summary>
 /// <param name = "src"> The text or string to analyze.</param>
-/// <param name = "arr"> The array in where the counts are remembered.</param>
+/// <param name = "lst"> The list storing the cooccurences.</param>
 /// <returns>A 2D array (array of arrays), listing the amount of times each 
 /// pair is in the text. The array will be turned into a list</returns>
-let rec coFunc (src : string) (arr : int [,]) : (int [,]) =
+let rec coFunc (src : string) (lst : int list list) : (int list list) =
   // The last character in the text has no next character
   // to form a pair with.
   if (String.length src <> 1) then
-    let ch1 = find 0 src.[0]
-    let ch2 = find 0 src.[1]
+    let ch1 = find 0 src.[0] alphabet
+    let ch2 = find 0 src.[1] alphabet
     // We add 1 to the amount of times the given pair exists
     // at the given position.
-    arr.[ch1,ch2] <- arr.[ch1,ch2]+1
-    coFunc src.[1..] arr
+    coFunc src.[1..] (newLst ch1 ch2 lst)
   else
-    arr
+    lst
 
 /// <summary> Counts the occurences of each pair of characters.</summary>
 /// <param name = "src"> The text or string to analyze.</param>
 /// <returns> A list of lists, containing the amount of occurences each pair 
 /// of characters appear in the text.</returns>
 let cooccurrence (src : string) : (int list list) =
-  let arrLst =  coFunc src (Array2D.create alphabet.Length alphabet.Length 0)
-  List.init (alphabet.Length) (fun i ->
+  // let arrLst =  coFunc src (Array2D.create alphabet.Length alphabet.Length 0)
+  coFunc src (List.init (alphabet.Length) (fun i ->
     List.init (alphabet.Length) (fun j ->
-      arrLst.[i,j]))
+      0)))
 
 /// <summary> Generate a random string with the given length, and character
 /// pairs distributed according to the given cooccurence histogram. </summary>
@@ -169,7 +174,7 @@ let rec markovChainHelper (len : int) (cooc : (int list list)) (str : string) : 
 let markovChain (cooc : (int list list)) (len : int) : string =
   // This function only generates the first random character in the
   // randomly generated string, the rest is created in markovCHainHelper
-  markovChainHelper len cooc (string (randomChar cooc.[cooc.Length-1]))
+  markovChainHelper len cooc (string (randomChar cooc.[find 0 (char " ")]))
   // We start by generating a char from the "histogram" of pairs where " " (space)
   // is the initial character, since it is the most likely to give us a general
   // overview (or "histogram") of the characters,
@@ -184,4 +189,3 @@ let diff2 (c1 : (int list list)) (c2 : (int list list)) : double =
     -1.0
   else
     List.sum (List.init alphabet.Length (fun i -> diff c1.[i] c2.[i]))/(float alphabet.Length)
-
