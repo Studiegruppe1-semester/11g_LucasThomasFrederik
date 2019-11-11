@@ -220,7 +220,6 @@ let randomWord (wHist : wordHistogram) : string =
 /// <param name = "src"> </param>
 /// <returns> </returns>
 let randomWords (wHist : wordHistogram) (nWords : int) : string =
-  let nHist = histFromWHist wHist
   String.init nWords (fun _ -> string (randomWord wHist) + string " ")
 
 /// <summary> </summary>
@@ -275,28 +274,38 @@ let cooccurenceOfWords (src : string) : wordCooccurrences =
   let srcText = (Array.toList (src.Split ' '))
   let wCoocs = (coocWordsHelper 0 srcText [])
   let wcList = List.map (fun c -> ((getWord c),(List.countBy (fun s -> (getWord s)) (getWHist c)))) wCoocs
-  List.filter (fun lst -> (getWord lst) <> (string "")) (List.sortBy (fun l -> (getWord l)) wcList)
+  List.sortBy (fun l -> (getWord l)) (List.filter (fun lst -> (getWord lst) <> (string "")) wcList)
 
 
-// let rec wMChainHelper (nWords : int ) (nCount:int) (wCooc : wordCooccurrences) (lWord : wordHistogram) : string =
-//   if (nCount >= nWords) then
-//     string (randomWord lWord)
-//     // str
-//   else
-//     string (randomWord lWord) + (wMChainHelper nWords (nCount+1) wCooc lWord)
-//   // else
-//   //   markovChainHelper2 len cooc (str + string (randomChar cooc.[find 0 str.[str.Length-1] alphabet]))
+let wHistFromWCoocs (wCooc : wordCooccurrences) (nWords : int) : wordHistogram =
+  let firstWord = randomWord (List.init wCooc.Length (fun i -> (getWord wCooc.[i], (List.sumBy (getVal) (getWHist wCooc.[i])))))
+  let fWIndex = (List.findIndex (fun (s,l) -> s = firstWord) wCooc)
+  getWHist wCooc.[fWIndex]
 
-// let wordMarkovChain (wCooc : wordCooccurrences) (nWords:int) : string =
-//   let fWord = List.maxBy (fun (s, (w : wordHistogram)) -> (List.sumBy (fun (s,j) -> j) (w))) wCooc
-//   let f = List.maxBy (fun (s, (w : wordHistogram)) -> (List.sumBy (getVal) (w))) wCooc
-//   let b = List.maxBy (fun s -> (List.sumBy (getVal) (getWHist s))) wCooc
-//   printfn "%A" 
-//   wMChainHelper nWords (0) wCooc (getWHist fWord)
+
+let rec wMChainHelper (nWords : int ) (nCount:int) (wCooc : wordCooccurrences) (wHist : wordHistogram) : string =
+  if (wHist = [("", 1)]) then
+    wMChainHelper (nWords) (nCount) (wCooc) (wHistFromWCoocs wCooc (nWords-nCount))
+  else
+    let word = (randomWord wHist)
+    let wordIndex = (List.findIndex (fun x -> (getWord x) = word) wCooc)
+    if (nCount >= nWords-1) then
+      word
+    else
+      word + (string " ") + (wMChainHelper nWords (nCount+1) wCooc (getWHist wCooc.[wordIndex]))
+
+let wordMarkovChain (wCooc : wordCooccurrences) (nWords : int) : string =
+  (wMChainHelper nWords (0) wCooc [("",1)])
 
 
 let TheStory = (convertText (readText "littleClausAndBigClaus.txt"))
-let StoryWCooc = cooccurenceOfWords TheStory
+let histTheStory = histogram TheStory
 
-// let rTextWMChain
+// let storyWHist = wordHistogram TheStory
+// let storyWLen = (List.sum (histFromWHist storyWHist))
+// let StoryWCooc = cooccurenceOfWords TheStory
 
+// let rTextWMChain = wordMarkovChain StoryWCooc storyWLen
+// let rTextLen = (List.sum (histFromWHist (wordHistogram rTextWMChain)))
+// printfn "%A" (rTextWMChain)
+// printfn "%A : %A" rTextLen storyWLen

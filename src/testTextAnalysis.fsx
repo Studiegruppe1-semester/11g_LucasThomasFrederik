@@ -25,11 +25,13 @@ printfn "7g5 \n"
 let TheStory = convertText (readText "littleClausAndBigClaus.txt")
 let histTheStory = histogram TheStory
 printfn "7g5 a"
-printfn "Histogram of The Story : %A" histTheStory
+printfn "Histogram of The Story : \n %A" histTheStory
+// printfn "The story histogram:\n %A" (List.zip alphabet histTheStory)
 // printfn "7g5 b"
 let randomText = randomString histTheStory TheStory.Length
 // printfn "Randomstring from the histogram of the story \n %A" randomText
-printfn "Histogram of randomText %A" (histogram randomText)
+printfn "Histogram of randomText : \n %A" (histogram randomText)
+// printfn "Resulting histogram:\n %A" (List.zip alphabet (histogram randomText))
 printfn "7g5 c"
 printfn "Difference between the Histograms : %A" (diff histTheStory (histogram randomText))
 printfn "7g5 d"
@@ -67,14 +69,15 @@ printfn "7g11: white-box testing of wordHistogram"
 printfn "wordHistogram: (wordHistogram 'hej med dig min ven' = [('hej', 1); ('med', 1); ('dig', 1); ('min', 1); ('ven', 1)]) : %b" (wordHistogram "hej med dig min ven" = [("hej", 1); ("med", 1); ("dig", 1); ("min", 1); ("ven", 1)])
 printfn "wordHistogram: (wordHistogram 'hej med dig hej med dig hej med dig' = [('hej', 3); ('med', 3); ('dig', 3)] : %b" (wordHistogram "hej med dig hej med dig hej med dig" = [("hej", 3); ("med", 3); ("dig", 3)])
 printfn "wordHistogram: (wordHistogram 'wababababa u i wababababa' = [('wababababa', 2); ('u', 1); ('i', 1)]) : %b" (wordHistogram "wababababa u i wababababa" = [("wababababa", 2); ("u", 1); ("i", 1)])
-printfn "wordHistogram: (wordHistogram 'abc ba ba a' = [('abc'), 1); ('ba', 2); ('a', 1)]) : %b" (wordHistogram "abc ba ba a" = [("abc"), 1); ("ba", 2); ("a", 1)])
+printfn "wordHistogram: (wordHistogram 'abc ba ba a' = [('abc'), 1); ('ba', 2); ('a', 1)]) : %b" (wordHistogram "abc ba ba a" = [("abc", 1); ("ba", 2); ("a", 1)])
 printfn "wordHistogram: (wordHistogram 'a abc ba ba' = [('a', 1); ('abc',1); ('ba',2)]) : %b" (wordHistogram "a abc ba ba" = [("a", 1); ("abc",1); ("ba",2)])
 printfn "wordHistogram: (wordHistogram '' = [('', 0)]) : %b" (wordHistogram "" = [("", 0)])
 
 // printfn "7g13 a"
 let storyWHist = wordHistogram TheStory
+let storyWLen = (List.sum (histFromWHist storyWHist))
 // printfn "7g13 b"
-let randomWText = randomWords storyWHist (List.sum (histFromWHist storyWHist))
+let randomWText = randomWords storyWHist storyWLen
 let rTextWHist = wordHistogram randomWText
 printfn "7g13 c"
 printfn "Difference between the word-histograms : %A" (diffw storyWHist rTextWHist)
@@ -88,8 +91,18 @@ printfn "cooccurenceOfWords: (cooccurenceOfWords 'a hat and a cat') = %A : %b" (
 // printfn "%A" (cooccurenceOfWords "a hat and a cat")
 // printfn "%A" StoryWCoo
 
-printfn "cooccurenceOfWords: (cooccurenceOfWords '') = %A : %b" (cat) ((cooccurenceOfWords "a hat and a cat") = cat)
-printfn "cooccurenceOfWords: (cooccurenceOfWords 'a hat and a cat') = %A : %b" (cat) ((cooccurenceOfWords "a hat and a cat") = cat)
-printfn "cooccurenceOfWords: (cooccurenceOfWords 'a hat and a cat') = %A : %b" (cat) ((cooccurenceOfWords "a hat and a cat") = cat)
-printfn "cooccurenceOfWords: (cooccurenceOfWords 'a hat and a cat') = %A : %b" (cat) ((cooccurenceOfWords "a hat and a cat") = cat)
-printfn "cooccurenceOfWords: (cooccurenceOfWords 'a hat and a cat') = %A : %b" (cat) ((cooccurenceOfWords "a hat and a cat") = cat)
+printfn "cooccurenceOfWords: (cooccurenceOfWords '') = [] : %b" ((cooccurenceOfWords "") = [])
+printfn "cooccurenceOfWords: (cooccurenceOfWords ' ') = [] : %b" ((cooccurenceOfWords " ") = [])
+printfn "cooccurenceOfWords: (cooccurenceOfWords 'hej') = [('hej', [])]: %b" ((cooccurenceOfWords "hej") = [("hej", [])])
+printfn "cooccurenceOfWords: (cooccurenceOfWords 'hej med') = [('hej', [('med', 1)]); ('med', [])]: %b" ((cooccurenceOfWords "hej med") = [("hej", [("med", 1)]); ("med", [])])
+printfn "cooccurenceOfWords: (cooccurenceOfWords 'hej hej' = : %b" ((cooccurenceOfWords "hej hej") = [("hej", [("hej", 1)])])
+
+printfn "%A" (cooccurenceOfWords "")
+printfn "%A" (cooccurenceOfWords " ")
+printfn "%A" (cooccurenceOfWords "hej")
+printfn "%A" (cooccurenceOfWords "hej med")
+
+// []
+// []
+// [("Hej", [])]
+// [("Hej", [("med", 1)]); ("med", [])]
