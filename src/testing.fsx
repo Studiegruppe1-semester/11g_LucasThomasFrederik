@@ -120,7 +120,7 @@ let newLst (ch1 : int) (ch2 : int) (lst : (int list list)) : (int list list) =
 
 /// <summary> Counts the occurences of each pair of characters.</summary>
 /// <param name = "src"> The text or string to analyze.</param>
-/// <param name = "lst"> The list storing the cooccurrences.</param>
+/// <param name = "lst"> The list of the cooccurrences.</param>
 /// <returns>A 2D array (array of arrays), listing the amount of times each 
 /// pair is in the text. The array will be turned into a list</returns>
 let rec coFunc (src : string) (lst : int list list) : (int list list) =
@@ -226,7 +226,7 @@ let randomWords (wHist : wordHistogram) (nWords : int) : string =
 /// <summary> </summary>
 /// <param name = "src"> </param>
 /// <returns> </returns>
-let diffwHelp (wL : wordHistogram) (wS : wordHistogram) (wLHist : int list) (wSHist : int list) (n : int) : (double) =
+let diffwHelp (wL : wordHistogram) (wS : wordHistogram) (wLHist : int list) (wSHist : int list) : (double) =
   let wSWords = List.init wS.Length (fun i -> (getWord wS.[i]))
   let wNS = (List.map (fun (str,y) -> if (find 0 str wSWords) <> -1 then (getVal wS.[find 0 str wSWords]) else 0) wL)
   (List.fold2 (fun acc elem1 elem2 ->
@@ -237,11 +237,12 @@ let diffwHelp (wL : wordHistogram) (wS : wordHistogram) (wLHist : int list) (wSH
 /// <returns> </returns>
 let diffw (w1 : wordHistogram) (w2 : wordHistogram) : (double) =
   if (histFromWHist w1).Length > (histFromWHist w2).Length then
-    diffwHelp w1 w2 (histFromWHist w1) (histFromWHist w2) 0
+    diffwHelp w1 w2 (histFromWHist w1) (histFromWHist w2)
   else
-    diffwHelp w2 w1 (histFromWHist w2) (histFromWHist w1) 0
+    diffwHelp w2 w1 (histFromWHist w2) (histFromWHist w1)
 
 type wordCooccurrences = (string * wordHistogram) list
+
 
 let getWHist (str : string, wHist : wordHistogram) : wordHistogram =
   wHist
@@ -276,6 +277,7 @@ let cooccurenceOfWords (src : string) : wordCooccurrences =
   let wcList = List.map (fun c -> ((getWord c),(List.countBy (fun s -> (getWord s)) (getWHist c)))) wCoocs
   List.filter (fun lst -> (getWord lst) <> (string "")) (List.sortBy (fun l -> (getWord l)) wcList)
 
+
 // let rec wMChainHelper (nWords : int ) (nCount:int) (wCooc : wordCooccurrences) (lWord : wordHistogram) : string =
 //   if (nCount >= nWords) then
 //     string (randomWord lWord)
@@ -286,10 +288,15 @@ let cooccurenceOfWords (src : string) : wordCooccurrences =
 //   //   markovChainHelper2 len cooc (str + string (randomChar cooc.[find 0 str.[str.Length-1] alphabet]))
 
 // let wordMarkovChain (wCooc : wordCooccurrences) (nWords:int) : string =
-//   let fWord = List.maxBy (fun (x, (i : wordHistogram)) -> (List.sumBy (fun (s,j) -> j) (i))) wCooc
+//   let fWord = List.maxBy (fun (s, (w : wordHistogram)) -> (List.sumBy (fun (s,j) -> j) (w))) wCooc
+//   let f = List.maxBy (fun (s, (w : wordHistogram)) -> (List.sumBy (getVal) (w))) wCooc
+//   let b = List.maxBy (fun s -> (List.sumBy (getVal) (getWHist s))) wCooc
+//   printfn "%A" 
 //   wMChainHelper nWords (0) wCooc (getWHist fWord)
 
+
 let TheStory = (convertText (readText "littleClausAndBigClaus.txt"))
-// let histTheStory = histogram TheStory
 let StoryWCooc = cooccurenceOfWords TheStory
+
+// let rTextWMChain
 

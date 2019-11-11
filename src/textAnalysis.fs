@@ -142,7 +142,6 @@ let rec coFunc (src : string) (lst : int list list) : (int list list) =
 /// <returns> A list of lists, containing the amount of occurences each pair 
 /// of characters appear in the text.</returns>
 let cooccurrence (src : string) : (int list list) =
-  // let arrLst =  coFunc src (Array2D.create alphabet.Length alphabet.Length 0)
   coFunc src (List.init (alphabet.Length) (fun i ->
     List.init (alphabet.Length) (fun j ->
       0)))
