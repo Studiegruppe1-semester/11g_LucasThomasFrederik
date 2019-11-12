@@ -1,11 +1,11 @@
 Open textAnalysis
 
-printfn "7g3"
+printfn "7g4"
 printfn "White-box testing of readText"
 // printfn "readText: readText 'testTextAnalysis.fsx' = testTextAnalysis.fsx : %A" (readText "testTextAnalysis.fsx")
 printfn "readText: readText 'notAFile.fsx' = '' : %b" (readText "notAFile.fsx" = "")
 
-printfn "white-box testing of convertText"
+printfn "White-box testing of convertText"
 printfn "convertText: convertText 'kdjlh laiudf' = 'kdjlh laiudf' : %b" (convertText "kdjlh laiudf" = "kdjlh laiudf")
 printfn "convertText: convertText 'Kf.19.d,k2' = 'kfdk' : %b" (convertText "Kf.19.d,k2" = "kfdk")
 printfn "convertText: convertText '    ' = '    ' : %b" (convertText "    " = "    ")
@@ -13,7 +13,7 @@ printfn "convertText: convertText '11D9 kD91D' = 'd kdd' : %b" (convertText "11D
 printfn "convertText: convertText '*dj, ud. 92' = 'dj ud '  : %b" (convertText "*dj, ud. 92" = "dj ud ")
 printfn "convertText: convertText 'JD 13ID kd Jd' = 'jd id kd jd' : %b" (convertText "JD 13ID kd Jd" = "jd id kd jd")
 
-printfn "white-box testing of histogram"
+printfn "White-box testing of histogram"
 printfn "histogram: JAmdamNDN = [2; 0; 0; 2; 0; 0; 0; 0; 0; 1; 0; 0; 2; 2; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0] : %b" (histogram "JAmdamNDN" = [2; 0; 0; 2; 0; 0; 0; 0; 0; 1; 0; 0; 2; 2; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0])
 printfn "histogram: oædk jasælkf aæl kwj klkjfas = [3; 0; 0; 1; 0; 2; 0; 0; 0; 3; 5; 3; 0; 0; 1; 0; 0; 0; 2; 0; 0; 0; 1; 0; 0; 0; 4] : %b" (histogram "oædk jasælkf aæl kwj klkjfas" = [3; 0; 0; 1; 0; 2; 0; 0; 0; 3; 5; 3; 0; 0; 1; 0; 0; 0; 2; 0; 0; 0; 1; 0; 0; 0; 4])
 printfn "histogram: 391dj idj f89hfba = [1; 1; 0; 2; 0; 2; 0; 1; 1; 2; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 2] : %b" (histogram "391dj idj f89hfba" = [1; 1; 0; 2; 0; 2; 0; 1; 1; 2; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 2])
@@ -88,21 +88,21 @@ printfn "Testing the difference: (diffw storyWHist rTextWHist) <= 4.5 : %b" (dif
 printfn "7g15"
 let cat = [("a", [("hat", 1); ("cat", 1)]); ("and", [("a", 1)]); ("cat", []); ("hat", [("and", 1)])]
 printfn "cooccurenceOfWords: (cooccurenceOfWords 'a hat and a cat') = %A : %b" (cat) ((cooccurenceOfWords "a hat and a cat") = cat)
-// printfn "%A" (cooccurenceOfWords "a hat and a cat")
-// printfn "%A" StoryWCoo
-
 printfn "cooccurenceOfWords: (cooccurenceOfWords '') = [] : %b" ((cooccurenceOfWords "") = [])
 printfn "cooccurenceOfWords: (cooccurenceOfWords ' ') = [] : %b" ((cooccurenceOfWords " ") = [])
 printfn "cooccurenceOfWords: (cooccurenceOfWords 'hej') = [('hej', [])]: %b" ((cooccurenceOfWords "hej") = [("hej", [])])
 printfn "cooccurenceOfWords: (cooccurenceOfWords 'hej med') = [('hej', [('med', 1)]); ('med', [])]: %b" ((cooccurenceOfWords "hej med") = [("hej", [("med", 1)]); ("med", [])])
 printfn "cooccurenceOfWords: (cooccurenceOfWords 'hej hej' = : %b" ((cooccurenceOfWords "hej hej") = [("hej", [("hej", 1)])])
 
-printfn "%A" (cooccurenceOfWords "")
-printfn "%A" (cooccurenceOfWords " ")
-printfn "%A" (cooccurenceOfWords "hej")
-printfn "%A" (cooccurenceOfWords "hej med")
-
-// []
-// []
-// [("Hej", [])]
-// [("Hej", [("med", 1)]); ("med", [])]
+printfn "7g17"
+// printfn "7g17 a"
+let StoryWCooc = cooccurenceOfWords TheStory
+// printfn "7g17 b"
+let rTextWMChain = wordMarkovChain StoryWCooc storyWLen
+let rTextwCooc = cooccurenceOfWords rTextWMChain
+let rTextLen = (List.sum (histFromWHist (wordHistogram rTextWMChain)))
+printfn "words in the story %A, words in random text %A" rTextLen storyWLen
+printfn "7g17 c"
+printfn "Difference between the woord cooccurrence-histograms : %A" (diffw2 StoryWCooc rTextwCooc)
+printfn "7g17 d"
+printfn "Testing the difference: (diffw2 storyWHist rTextwCooc) <= 0.005 : %b" (diffw2 StoryWCooc rTextwCooc <= 0.005)
