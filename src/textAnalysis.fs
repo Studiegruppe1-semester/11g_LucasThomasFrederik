@@ -1,3 +1,5 @@
+module textAnalysis
+
 /// <summary> Calculate the cumulative sum of a list of integers from the first
 /// to the last element. First element is the first number in the original list,
 /// last element is the sum of all integers in the original list. </summary>
@@ -51,9 +53,9 @@ let randomChar (hist : int list) : char =
 let randomString (hist : int list) (len : int) : string =
   String.init len (fun _ -> string (randomChar hist))
 
-/// <summary> Given a string (a name of a file), tries to read the file.</summary>
-/// <param name = "filename"> Name of a file.</param>
-/// <returns> The contents of the given file as a string. </returns>
+/// <summary> Convert the contents of a file into a string.</summary>
+/// <param name = "filename"> Name of the file to be read.</param>
+/// <returns> A string containing the contents of the given file.</returns>
 let readText (filename : string) : string = 
   try
     let reader = System.IO.File.OpenText filename
@@ -61,22 +63,21 @@ let readText (filename : string) : string =
   with
     _ -> "" // The file cannot be read, so we return an empty string
 
-/// <summary> Converts a string to lowercase letters and removes signs.</summary>
-/// <param name = "src"> A string.</param>
+/// <summary> Converts all letters in a string to lowercase,
+/// and removes any characters not in the alphabet. (any not a..z or whitespace).</summary>
+/// <param name = "src"> The string to be converted.</param>
 /// <returns> A lowercase string with only whitespace as special signs. </returns>
 let convertText (src:string) : string =
   // We test if any value in the given string, which we already made lowercase,
-  // are in the given alphabet. If the given value isn't, 
+  // are in the given alphabet. If the given value isn't,
   // we replace it with an empty string ("").
   String.collect (fun c -> 
     if List.exists((=)c) alphabet then 
       string c 
     else "") (src.ToLower())
-// Could have used match and checked for uppercase letters and replaced
-// them with lowercase, else check if the character isn't in the alphabet.
 
-/// <summary> Generate a histogram of the characters 'a'..'z' and ' ' in a given
-/// string.</summary>
+/// <summary> Generate a histogram of the characters 'a'..'z' and ' ' 
+/// in a given string.</summary>
 /// <param name = "str"> Any string consisting of the characters: 'a'..'z' and
 /// ' ' in any order. </param>
 /// <returns> A list of character counts, with the first element is the count of
@@ -87,12 +88,14 @@ let histogram (str : string) : int list =
       if c = (alphabet.[i]) then string c else "") 
         (convertText str)))
 
-/// <summary>Calculate the distance between two histograms.</summary>
-/// <param name = "h1">A histogram</param>
-/// <param name = "h2">A histogram </param>
-/// <returns>A double</returns>
+/// <summary> Compare two histograms as the 
+/// average sum of squared differences.</summary>
+/// <param name = "h1"> A histogram of counts of characters.</param>
+/// <param name = "h2"> Another histogram of counts of charecters.</param>
+/// <returns> A double representing the difference 
+/// between the histograms. </returns>
 let diff (h1 : (int list)) (h2 : (int list)) : (double) =
-  if (h1.Length <> alphabet.Length || h2.Length <> alphabet.Length) then
+  if (h1.Length <> alphabet.Length || h2.Length <> h1.Length) then
     -1.0
   else
     (List.fold2 (fun acc elem1 elem2 ->
@@ -101,12 +104,10 @@ let diff (h1 : (int list)) (h2 : (int list)) : (double) =
 
 /// <summary> Find the index of a given item in the given list</summary>
 /// <param name = "i"> The counter/index or "position" in the list.</param>
-/// <param name = "item"> The item to find the index of in the.</param>
-/// <returns> The index of the item in the given list.
-/// Returns -1 if the given item is not found in the list.</returns>
+/// <param name = "item"> The item to find the index of in the list.</param>
+/// <returns> The index of the item in the given list,
+/// returns -1 if the given item is not found in the list.</returns>
 let rec find (i : int) (item : _) (lst : (_ list)) : int =
-  // If we reached the last character in the alphabet, 
-  // we assume this is the position
   if (i >= lst.Length || i <= -1) then
     -1
   else if lst.[i] = item then
@@ -114,17 +115,27 @@ let rec find (i : int) (item : _) (lst : (_ list)) : int =
   else
     find (i+1) item lst
 
+/// <summary> Add 1 to the count of a given pair in a histogram.</summary>
+/// <param name = "ch1"> Index in the alphabet
+/// of the first character of the pair.</param>
+/// <param name = "ch2"> Index in the alphabet 
+/// of the second character of the pair.</param>
+/// <param name = "lst"> A histogram of character pairs in a text.
+/// Initially a list of lists, each with the length of
+/// the alphabet, and containing only 0.</param>
+/// <returns> A histogram of .</returns>
 let newLst (ch1 : int) (ch2 : int) (lst : (int list list)) : (int list list) =
   (List.mapi (fun i x ->
     if (i = ch1) then
       (List.mapi (fun j y -> if j = ch2 then (y + 1) else y ) x)
         else lst.[i]) lst)
 
-/// <summary> Counts the occurences of each pair of characters.</summary>
-/// <param name = "src"> The text or string to analyze.</param>
-/// <param name = "lst"> The list of the cooccurrences.</param>
-/// <returns>A 2D array (array of arrays), listing the amount of times each 
-/// pair is in the text. The array will be turned into a list</returns>
+/// <summary> Count the occurences of each pair of characters.</summary>
+/// <param name = "src"> A text or string to analyze.</param>
+/// <param name = "lst"> A histogram of occurences of pairs in the text.
+/// Initially a list of lists, each with the length of
+/// the alphabet, and containing only 0.</param>
+/// <returns> The histogram of occurences of each pair in the text. </returns>
 let rec coFunc (src : string) (lst : int list list) : (int list list) =
   // The last character in the text has no next character
   // to form a pair with.
@@ -193,7 +204,7 @@ let diff2 (c1 : (int list list)) (c2 : (int list list)) : double =
 type wordHistogram = (string * int) list
 
 /// <summary> </summary>
-/// <param name = "src"> </param>
+/// <param name = "src">A string</param>
 /// <returns> A histogram of each word in the given string.</returns>
 let wordHistogram (src : string ) : wordHistogram =
   if src = (string "") || src = (string " ") then
@@ -204,7 +215,7 @@ let wordHistogram (src : string ) : wordHistogram =
     List.countBy (fun (x : string) -> (x)) (Array.toList (src.Split ' '))
 
 /// <summary>Returns a string from a double</summary>
-/// <param name = "str"> </param>
+/// <param name = "str">A string</param>
 /// <param name = "n"></param>
 /// <returns></returns>
 let getWord (str : string, n : _) : string =
@@ -218,13 +229,13 @@ let getVal (str : string, n : int) : int =
   n
 
 /// <summary> </summary>
-/// <param name = "wHist"> </param>
+/// <param name = "wHist">A histogram of words.</param>
 /// <returns></returns>
 let histFromWHist (wHist : wordHistogram) : (int list) =
   List.init wHist.Length (fun i -> (getVal wHist.[i]))
 
 /// <summary> </summary>
-/// <param name = "wHist"> </param>
+/// <param name = "wHist">A histogram of words.</param>
 /// <returns></returns>
 let randomWord (wHist : wordHistogram) : string =
   let cumHist = cumSum (histFromWHist wHist)
@@ -233,14 +244,17 @@ let randomWord (wHist : wordHistogram) : string =
   getWord wHist.[i]
 
 /// <summary> </summary>
-/// <param name = "wHist"> </param>
+/// <param name = "wHist">A histogram of words.</param>
 /// <param name = "nWords"> </param>
 /// <returns> </returns>
 let randomWords (wHist : wordHistogram) (nWords : int) : string =
   String.init nWords (fun _ -> string (randomWord wHist) + string " ")
 
 /// <summary> </summary>
-/// <param name = "src"> </param>
+/// <param name = "wL"> A histogram of words</param>
+/// <param name = "wS"> A histogram of words </param>
+/// <param name = "wLHist"> A list of integers</param>
+/// <param name = "wSHist"> A list of integers</param>
 /// <returns> </returns>
 let diffwHelp (wL : wordHistogram) (wS : wordHistogram) (wLHist : int list) (wSHist : int list) : (double) =
   let wSWords = List.init wS.Length (fun i -> (getWord wS.[i]))
@@ -248,11 +262,23 @@ let diffwHelp (wL : wordHistogram) (wS : wordHistogram) (wLHist : int list) (wSH
   (List.fold2 (fun acc elem1 elem2 ->
     acc + pown ((float elem1)-(float elem2)) 2) 0.0 wLHist wNS)
 
-/// <summary> </summary>
-/// <param name = "src"> </param>
-/// <returns> </returns>
+/// <summary> Compares two word-histograms as the average sum of squared differences.</summary>
+/// <param name = "w1"> A histogram of words</param>
+/// <param name = "w2"> A histogram of words</param>
+/// <remarks> Expects that the shortest histogram either contains
+/// all or some of the words in the longest, but no words not in the
+/// longest histogram. </remarks>
+/// <returns> returns the average sum of squared differences between the two histograms. </returns>
 let diffw (w1 : wordHistogram) (w2 : wordHistogram) : (double) =
-  if (w1).Length > (w2).Length then
+  (*
+    First we find out which histogram is the longest,
+    so we can use functions such as List.fold
+    which require the lists to have the same length.
+    In our case, either the lists would have the same length
+    or the original story would be the longest
+    since the random text might not contain all letters
+  *)
+  if w1.Length > w2.Length then
     (diffwHelp w1 w2 (histFromWHist w1) (histFromWHist w2))/(float w1.Length)
   else
     (diffwHelp w2 w1 (histFromWHist w2) (histFromWHist w1))/(float w1.Length)
@@ -275,7 +301,11 @@ let exists (x : int option) =
     | None -> -1
 
 /// <summary> </summary>
-/// <param name = ""> </param>
+/// <param name = "wCooc"> </param>
+/// <param name = "wLst"> </param>
+/// <param name = "curWord"> </param>
+/// <param name = "last"> </param>
+/// <param name = "n"> </param>
 /// <returns></returns>
 let changeWList (wCooc: wordCooccurrences) (wLst : (string list)) (curWord : string) (last : bool) (n : int) : wordCooccurrences =
   let fIndex = List.tryFindIndex (fun (st,n) -> st = curWord) wCooc
@@ -286,7 +316,9 @@ let changeWList (wCooc: wordCooccurrences) (wLst : (string list)) (curWord : str
     (List.append wCooc ([(curWord, add)]))
 
 /// <summary> </summary>
-/// <param name = ""> </param>
+/// <param name = "n">An integer</param>
+/// <param name = "wLst"> </param>
+/// <param name = "wCooc"> </param>
 /// <returns></returns>
 let rec coocWordsHelper (n : int) (wLst : (string list)) (wCooc : wordCooccurrences) : wordCooccurrences =
   let last = (n >= wLst.Length-1)
@@ -296,7 +328,7 @@ let rec coocWordsHelper (n : int) (wLst : (string list)) (wCooc : wordCooccurren
     coocWordsHelper (n+1) wLst (changeWList wCooc wLst wLst.[n] last n)
 
 /// <summary> </summary>
-/// <param name = "src"> </param>
+/// <param name = "src">A string</param>
 /// <returns></returns>
 let cooccurenceOfWords (src : string) : wordCooccurrences =
   let srcText = (Array.toList (src.Split ' '))
@@ -305,19 +337,22 @@ let cooccurenceOfWords (src : string) : wordCooccurrences =
   List.sortBy (fun l -> (getWord l)) (List.filter (fun lst -> (getWord lst) <> (string "")) wcList)
 
 /// <summary> </summary>
-/// <param name = ""> </param>
+/// <param name = "wCooc"> </param>
 /// <returns></returns>
-let wHistFromWCoocs (wCooc : wordCooccurrences) (nWords : int) : wordHistogram =
+let wHistFromWCoocs (wCooc : wordCooccurrences) : wordHistogram =
   let firstWord = randomWord (List.init wCooc.Length (fun i -> (getWord wCooc.[i], (List.sumBy (getVal) (getWHist wCooc.[i])))))
   let fWIndex = (List.findIndex (fun (s,l) -> s = firstWord) wCooc)
   getWHist wCooc.[fWIndex]
 
 /// <summary> </summary>
-/// <param name = ""> </param>
+/// <param name = "nWords"> </param>
+/// <param name = "nCount"> </param>
+/// <param name = "wCooc"> </param>
+/// <param name = "wHist"> </param>
 /// <returns></returns>
 let rec wMChainHelper (nWords : int ) (nCount:int) (wCooc : wordCooccurrences) (wHist : wordHistogram) : string =
   if (wHist = [("", 1)]) then
-    wMChainHelper (nWords) (nCount) (wCooc) (wHistFromWCoocs wCooc (nWords-nCount))
+    wMChainHelper (nWords) (nCount) wCooc (wHistFromWCoocs wCooc)
   else
     let word = (randomWord wHist)
     let wordIndex = (List.findIndex (fun x -> (getWord x) = word) wCooc)
@@ -327,11 +362,16 @@ let rec wMChainHelper (nWords : int ) (nCount:int) (wCooc : wordCooccurrences) (
       word + (string " ") + (wMChainHelper nWords (nCount+1) wCooc (getWHist wCooc.[wordIndex]))
       
 /// <summary> </summary>
-/// <param name = ""> </param>
+/// <param name = "wCooc"> </param>
+/// <param name = "nWords"> </param>
 /// <returns></returns>
 let wordMarkovChain (wCooc : wordCooccurrences) (nWords : int) : string =
   (wMChainHelper nWords (0) wCooc [("",1)])
 
+/// <summary> </summary>
+/// <param name = "wS"> </param>
+/// <param name = "wL"> </param>
+/// <returns></returns>
 let newWordList (wS:wordCooccurrences) (wL:wordCooccurrences) =
   let wSWords = List.init wS.Length (fun i -> (getWord wS.[i]))
   (List.map (fun c -> 
@@ -342,7 +382,8 @@ let newWordList (wS:wordCooccurrences) (wL:wordCooccurrences) =
         (getWord (getWHist c).[i]),0))) (wL))
 
 /// <summary> </summary>
-/// <param name = "src"> </param>
+/// <param name = "w1">A word histogram</param>
+/// <param name = "w2">A word histogram</param>
 /// <returns> </returns>
 let callDiffwHelper (w1 : wordHistogram) (w2 : wordHistogram) : (double) =
   if (histFromWHist w1).Length > (histFromWHist w2).Length then
@@ -350,10 +391,22 @@ let callDiffwHelper (w1 : wordHistogram) (w2 : wordHistogram) : (double) =
   else
     diffwHelp w2 w1 (histFromWHist w2) (histFromWHist w1)
 
+/// <summary> </summary>
+/// <param name = "wL"> The list containing the longest </param>
+/// <param name = "wS"> </param>
+/// <returns> </returns>
 let diffw2Help (wL : wordCooccurrences) (wS : wordCooccurrences) : (double) =
   let wNS = newWordList wS wL
   (List.fold2 (fun acc wCooc1 wCooc2 -> acc + (callDiffwHelper (getWHist wCooc1) (getWHist wCooc2))) 0.0 wNS wL)
 
+/// <summary> Compare two word-cooccurrence histograms by
+/// finding the average sum of the squared differences.</summary>
+/// <param name = "c1"> A word-cooccurrence histogram of a string.</param>
+/// <param name = "c2"> A word-cooccurrence histogram of another string.</param>
+/// <remarks> Expects that the shortest histogram either contains
+/// all or some of the words in the longest, but no words not in the
+/// longest histogram. </remarks>
+/// <returns> A double resembling the difference between two</returns>
 let diffw2 (c1 : wordCooccurrences) (c2 : wordCooccurrences) : double =
   if c1.Length > c2.Length then
     (diffw2Help c1 c2)/(float (pown c1.Length 2))

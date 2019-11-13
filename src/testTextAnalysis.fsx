@@ -2,7 +2,7 @@ Open textAnalysis
 
 printfn "7g4"
 printfn "White-box testing of readText"
-// printfn "readText: readText 'testTextAnalysis.fsx' = testTextAnalysis.fsx : %A" (readText "testTextAnalysis.fsx")
+printfn "readText: readText 'testTextAnalysis.fsx' = testTextAnalysis.fsx : %A" (readText "testTextAnalysis.fsx")
 printfn "readText: readText 'notAFile.fsx' = '' : %b" (readText "notAFile.fsx" = "")
 
 printfn "White-box testing of convertText"
@@ -38,13 +38,13 @@ printfn "7g5 d"
 printfn "Testing the difference: (diff histTheStory (histogram randomText)) <= 500.0: %b" ((diff histTheStory (histogram randomText)) <= 500.0)
 
 printfn "7g7: white-box testing of cooccurence \n"
-printfn "cooccurrence: (cooccurrence ''ababb'').[0].[0..1] = [0; 2] : %b" ((cooccurrence "ababb").[0].[0..1] = [0; 2]) 
-printfn "cooccurrence: (cooccurrence ''ababb'').[1].[0..1] = [1; 1] : %b" ((cooccurrence "ababb").[1].[0..1] = [1; 1])
-printfn "cooccurrence: (cooccurrence ''ababb'').[4].[0..1] = [0; 0] : %b" ((cooccurrence "ababb").[4].[0..1] = [0; 0])
-printfn "cooccurrence: (cooccurrence ''ababb'').[1].[0..4] = [1; 1; 0; 0; 0] : %b" ((cooccurrence "ababb").[1].[0..4] = [1; 1; 0; 0; 0])
-printfn "cooccurrence: (cooccurrence ''eddedde'').[4].[0..5] = [0; 0; 0; 2; 0; 0] : %b" ((cooccurrence "eddedde").[4].[0..5] = [0; 0; 0; 2; 0; 0])
-printfn "cooccurrence: (cooccurrence ''eddedde'').[3].[0..5] = [0; 0; 0; 2; 2; 0] : %b" ((cooccurrence "eddedde").[3].[0..5] = [0; 0; 0; 2; 2; 0])
-printfn "cooccurrence: (cooccurrence ''eddedde'').[15].[0..5] = [0; 0; 0; 0; 0; 0] : %b" ((cooccurrence "eddedde").[15].[0..5] = [0; 0; 0; 0; 0; 0])
+printfn "cooccurrence: (cooccurrence 'ababb').[0].[0..1] = [0; 2] : %b" ((cooccurrence "ababb").[0].[0..1] = [0; 2]) 
+printfn "cooccurrence: (cooccurrence 'ababb').[1].[0..1] = [1; 1] : %b" ((cooccurrence "ababb").[1].[0..1] = [1; 1])
+printfn "cooccurrence: (cooccurrence 'ababb').[4].[0..1] = [0; 0] : %b" ((cooccurrence "ababb").[4].[0..1] = [0; 0])
+printfn "cooccurrence: (cooccurrence 'ababb').[1].[0..4] = [1; 1; 0; 0; 0] : %b" ((cooccurrence "ababb").[1].[0..4] = [1; 1; 0; 0; 0])
+printfn "cooccurrence: (cooccurrence 'eddedde').[4].[0..5] = [0; 0; 0; 2; 0; 0] : %b" ((cooccurrence "eddedde").[4].[0..5] = [0; 0; 0; 2; 0; 0])
+printfn "cooccurrence: (cooccurrence 'eddedde').[3].[0..5] = [0; 0; 0; 2; 2; 0] : %b" ((cooccurrence "eddedde").[3].[0..5] = [0; 0; 0; 2; 2; 0])
+printfn "cooccurrence: (cooccurrence 'eddedde').[15].[0..5] = [0; 0; 0; 0; 0; 0] : %b" ((cooccurrence "eddedde").[15].[0..5] = [0; 0; 0; 0; 0; 0])
 
 printfn "7g9"
 printfn "7g9 a \n"
