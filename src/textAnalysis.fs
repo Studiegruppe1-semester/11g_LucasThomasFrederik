@@ -153,7 +153,6 @@ let rec coFunc (src : string) (lst : int list list) : (int list list) =
 /// <returns> A list of lists, containing the amount of occurences each pair 
 /// of characters appear in the text.</returns>
 let cooccurrence (src : string) : (int list list) =
-  // let arrLst =  coFunc src (Array2D.create alphabet.Length alphabet.Length 0)
   coFunc src (List.init (alphabet.Length) (fun i ->
     List.init (alphabet.Length) (fun j ->
       0)))
@@ -161,11 +160,13 @@ let cooccurrence (src : string) : (int list list) =
 /// <summary> Generate a random string with the given length, and character
 /// pairs distributed according to the given cooccurrence histogram. </summary>
 /// <param name = "len"> The length of the string to generate.</param>
-/// <param name = "cooc"> A cooccurrence histogram to generate char pairs from.</param>
+/// <param name = "cooc"> A cooccurrence histogram to 
+/// generate character pairs from.</param>
 /// <param name = "str"> A string containing at least 1 char, where the last 
 /// char in the string will be used to generate the next char.</param>
-/// <returns> A string with the length len of randomly generated character pairs,
-/// with each char being "randomly" generated from the (histogram of the) char before it.</returns>
+/// <returns> A string with the length len of randomly generated character
+/// pairs, with each char being "randomly" generated from the 
+/// (histogram of the) char before it.</returns>
 let rec markovChainHelper (len : int) (cooc : (int list list)) (str : string) : string =
   // This function is used to generate the random string.
   if (str.Length >= len-1) then
@@ -186,15 +187,17 @@ let markovChain (cooc : (int list list)) (len : int) : string =
   // This function only generates the first random character in the
   // randomly generated string, the rest is created in markovCHainHelper
   markovChainHelper len cooc (string (randomChar cooc.[find 0 (char " ") alphabet]))
-  // We start by generating a char from the "histogram" of pairs where " " (space)
+  // We start by generating a char from the "histogram" of pairs where " "
   // is the initial character, since it is the most likely to give us a general
   // overview (or "histogram") of the characters,
   // and thats why it is the best starting choice
 
-/// <summary> </summary>
-/// <param name = "c1"> </param>
-/// <param name = "c2"> </param>
-/// <returns>A double</returns>
+/// <summary> Compare two histograms of pairs of characters as the 
+/// average sum of squared differences.</summary>
+/// <param name = "c1"> A histogram of occurrences of char pairs.</param>
+/// <param name = "c2"> Another histogram of occurrences of char pairs.</param>
+/// <returns> A double representing the difference 
+/// between the histograms.</returns>
 let diff2 (c1 : (int list list)) (c2 : (int list list)) : double =
   if (c1.Head.Length <> alphabet.Length || c2.Head.Length <> alphabet.Length) then
     -1.0
@@ -203,54 +206,61 @@ let diff2 (c1 : (int list list)) (c2 : (int list list)) : double =
 
 type wordHistogram = (string * int) list
 
-/// <summary> </summary>
-/// <param name = "src">A string</param>
+/// <summary> Generate a histogram of words in a string.</summary>
+/// <param name = "src">A string. </param>
 /// <returns> A histogram of each word in the given string.</returns>
 let wordHistogram (src : string ) : wordHistogram =
   if src = (string "") || src = (string " ") then
     [("", 0)]
   else if (string src.[src.Length-1]) = (string " ") then
-    List.countBy (fun (x : string) -> (x)) (Array.toList (src.[0..src.Length-2].Split ' '))
+    List.countBy (fun (x : string) -> 
+      (x)) (Array.toList (src.[0..src.Length-2].Split ' '))
   else
     List.countBy (fun (x : string) -> (x)) (Array.toList (src.Split ' '))
 
-/// <summary>Returns a string from a double</summary>
-/// <param name = "str">A string</param>
-/// <param name = "n"></param>
-/// <returns></returns>
+/// <summary> Extract a string from a tuple of type string*_ 
+/// (_ meaning any).</summary>
+/// <param name = "str">A string.</param>
+/// <param name = "n"> Anything.</param>
+/// <returns> A string.</returns>
 let getWord (str : string, n : _) : string =
   str
 
-/// <summary>Get the n value from a double.</summary>
-/// <param name = "str">A string</param>
-/// <param name = "n">An integer</param>
-/// <returns>The value n</returns>
+/// <summary> Extract an integer value from a tuple of type string*int.</summary>
+/// <param name = "str"> A string.</param>
+/// <param name = "n"> An integer.</param>
+/// <returns> The integer n.</returns>
 let getVal (str : string, n : int) : int =
   n
 
-/// <summary> </summary>
-/// <param name = "wHist">A histogram of words.</param>
-/// <returns></returns>
+/// <summary> Get a list of Integers resembling the occurense of each word
+/// in a wordhistogram.</summary>
+/// <param name = "wHist"> A wordhistogram.</param>
+/// <returns>A list of Integers resembling the occurense of each word
+/// in a wordhistogram.</returns>
 let histFromWHist (wHist : wordHistogram) : (int list) =
   List.init wHist.Length (fun i -> (getVal wHist.[i]))
 
-/// <summary> </summary>
-/// <param name = "wHist">A histogram of words.</param>
-/// <returns></returns>
+/// <summary> Return a random word from a given wordhistogram.</summary>
+/// <param name = "wHist"> A wordhistogram.</param>
+/// <returns> A random word from the given wordhistogram</returns>
 let randomWord (wHist : wordHistogram) : string =
   let cumHist = cumSum (histFromWHist wHist)
   let v = rnd.Next(cumHist.[cumHist.Length-1])
   let i = reverseLookup cumHist v
   getWord wHist.[i]
 
-/// <summary> </summary>
-/// <param name = "wHist">A histogram of words.</param>
-/// <param name = "nWords"> </param>
-/// <returns> </returns>
+/// <summary> Generate a random string from a wordhistogram
+/// with the given amount of words.</summary>
+/// <param name = "wHist"> A histogram of words.</param>
+/// <param name = "nWords"> The amount of words to generate.</param>
+/// <returns> A randomly generated string, generated from a wordhistogram,
+/// with the given amount of words.</returns>
 let randomWords (wHist : wordHistogram) (nWords : int) : string =
   String.init nWords (fun _ -> string (randomWord wHist) + string " ")
 
-/// <summary> </summary>
+/// <summary> Compare two word-histograms as the 
+/// average sum of squared differences.</summary>
 /// <param name = "wL"> A histogram of words</param>
 /// <param name = "wS"> A histogram of words </param>
 /// <param name = "wLHist"> A list of integers</param>
@@ -262,13 +272,15 @@ let diffwHelp (wL : wordHistogram) (wS : wordHistogram) (wLHist : int list) (wSH
   (List.fold2 (fun acc elem1 elem2 ->
     acc + pown ((float elem1)-(float elem2)) 2) 0.0 wLHist wNS)
 
-/// <summary> Compares two word-histograms as the average sum of squared differences.</summary>
+/// <summary> Compare two word-histograms as the 
+/// average sum of squared differences.</summary>
 /// <param name = "w1"> A histogram of words</param>
-/// <param name = "w2"> A histogram of words</param>
-/// <remarks> Expects that the shortest histogram either contains
-/// all or some of the words in the longest, but no words not in the
-/// longest histogram. </remarks>
-/// <returns> returns the average sum of squared differences between the two histograms. </returns>
+/// <param name = "w2"> Another histogram of words</param>
+/// <remarks> Expects that the shortest wordhistogram either contains
+/// all or some of the words in the longest wordhistogram, but no words 
+/// not in the longest wordhistogram.</remarks>
+/// <returns> Returns the difference between the two as the 
+/// average sum of squared differences.</returns>
 let diffw (w1 : wordHistogram) (w2 : wordHistogram) : (double) =
   (*
     First we find out which histogram is the longest,
@@ -285,31 +297,38 @@ let diffw (w1 : wordHistogram) (w2 : wordHistogram) : (double) =
 
 type wordCooccurrences = (string * wordHistogram) list
 
-/// <summary> </summary>
-/// <param name = "str"> </param>
-/// <param name = "wHist"> </param>
-/// <returns></returns>
+/// <summary> Extract the wordhistogram from a tuple of type
+/// string*wordhistogram</summary>
+/// <param name = "str"> A word in the wordhistogram.</param>
+/// <param name = "wHist"> A wordhistogram.</param>
+/// <returns> A wordhistogram.</returns>
 let getWHist (str : string, wHist : wordHistogram) : wordHistogram =
   wHist
 
-/// <summary> </summary>
-/// <param name = "x"> </param>
-/// <returns></returns>
+/// <summary> Convert the type int*option to int</summary>
+/// <param name = "x"> A number of type int option.</param>
+/// <returns> An integer.</returns>
 let exists (x : int option) =
     match x with
     | Some(x) -> x
     | None -> -1
 
-/// <summary> </summary>
-/// <param name = "wCooc"> </param>
-/// <param name = "wLst"> </param>
-/// <param name = "curWord"> </param>
-/// <param name = "last"> </param>
-/// <param name = "n"> </param>
-/// <returns></returns>
+/// <summary> Add a new word or pair of words 
+/// to a wordcooccurrence histogram.</summary>
+/// <param name = "wCooc"> A list of wordcooccurences. </param>
+/// <param name = "wLst"> A list of strings. </param>
+/// <param name = "curWord"> The current word to add to the list.</param>
+/// <param name = "last"> Whether the word is the last in the </param>
+/// <param name = "n"> the index of the current word. </param>
+/// <returns> A wordcooccurrence list.</returns>
 let changeWList (wCooc: wordCooccurrences) (wLst : (string list)) (curWord : string) (last : bool) (n : int) : wordCooccurrences =
   let fIndex = List.tryFindIndex (fun (st,n) -> st = curWord) wCooc
+  // If the word is the the last in the text, there is no 
+  // next word to pair it with, otherwise find the next word
   let add = if last then [] else ([(wLst.[n+1],1)])
+  // If the given word doesn't exists as the first word of a
+  // pair of words yet, then add it to the end of the list
+  // with the wordhistogram of the next word.
   if (fIndex <> None) then
     List.map (fun x -> if (getWord x = curWord) then (curWord , (List.append (getWHist wCooc.[exists fIndex]) add)) else x) wCooc
   else
@@ -327,20 +346,24 @@ let rec coocWordsHelper (n : int) (wLst : (string list)) (wCooc : wordCooccurren
   else
     coocWordsHelper (n+1) wLst (changeWList wCooc wLst wLst.[n] last n)
 
-/// <summary> </summary>
-/// <param name = "src">A string</param>
-/// <returns></returns>
+/// <summary> Create a histogram of occurrences of pairs 
+/// of words in a string.</summary>
+/// <param name = "src"> A string.</param>
+/// <returns> A histogram of the occurrences of pairs of words.</returns>
 let cooccurenceOfWords (src : string) : wordCooccurrences =
   let srcText = (Array.toList (src.Split ' '))
   let wCoocs = (coocWordsHelper 0 srcText [])
-  let wcList = List.map (fun c -> ((getWord c),(List.countBy (fun s -> (getWord s)) (getWHist c)))) wCoocs
-  List.sortBy (fun l -> (getWord l)) (List.filter (fun lst -> (getWord lst) <> (string "")) wcList)
+  let wcList = (List.map (fun c -> 
+    ((getWord c),(List.countBy (fun s -> (getWord s)) (getWHist c)))) wCoocs)
+  (List.sortBy (fun l -> 
+    (getWord l)) (List.filter (fun lst -> (getWord lst) <> (string "")) wcList))
 
 /// <summary> </summary>
 /// <param name = "wCooc"> </param>
 /// <returns></returns>
 let wHistFromWCoocs (wCooc : wordCooccurrences) : wordHistogram =
-  let firstWord = randomWord (List.init wCooc.Length (fun i -> (getWord wCooc.[i], (List.sumBy (getVal) (getWHist wCooc.[i])))))
+  let firstWord = (randomWord (List.init wCooc.Length (fun i -> 
+    (getWord wCooc.[i], (List.sumBy (getVal) (getWHist wCooc.[i]))))))
   let fWIndex = (List.findIndex (fun (s,l) -> s = firstWord) wCooc)
   getWHist wCooc.[fWIndex]
 
