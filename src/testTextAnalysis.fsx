@@ -63,7 +63,7 @@ for i=0 to (List.length alphabet)-1 do
 printfn "7g9 c"
 printfn "Difference between the cooccurence histograms : %A" (diff2 cooc rCooc)
 printfn "7g9 d"
-printfn "Testing the difference: (diff2 cooc rCooc) <= 29.0 : %b" ((diff2 cooc rCooc) <= 29.0)
+printfn "Testing the difference: (diff2 cooc rCooc) <= 29.0 : %b" ((diff2 cooc rCooc) <= 25.0)
 
 printfn "7g11: white-box testing of wordHistogram"
 printfn "wordHistogram: (wordHistogram 'hej med dig min ven' = [('hej', 1); ('med', 1); ('dig', 1); ('min', 1); ('ven', 1)]) : %b" (wordHistogram "hej med dig min ven" = [("hej", 1); ("med", 1); ("dig", 1); ("min", 1); ("ven", 1)])

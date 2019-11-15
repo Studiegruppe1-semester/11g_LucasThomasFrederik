@@ -334,11 +334,12 @@ let changeWList (wCooc: wordCooccurrences) (wLst : (string list)) (curWord : str
   else
     (List.append wCooc ([(curWord, add)]))
 
-/// <summary> </summary>
-/// <param name = "n">An integer</param>
-/// <param name = "wLst"> </param>
-/// <param name = "wCooc"> </param>
-/// <returns></returns>
+/// <summary> Create a histogram of occurrences of pairs 
+/// of words in a string. </summary>
+/// <param name = "n"> An integer resembling the the current index.</param>
+/// <param name = "wLst"> The string converted to a list of strings/words.</param>
+/// <param name = "wCooc"> A histogram of the occurrences of pairs of words.</param>
+/// <returns>A histogram of the occurrences of pairs of words.</returns>
 let rec coocWordsHelper (n : int) (wLst : (string list)) (wCooc : wordCooccurrences) : wordCooccurrences =
   let last = (n >= wLst.Length-1)
   if last then
@@ -348,7 +349,7 @@ let rec coocWordsHelper (n : int) (wLst : (string list)) (wCooc : wordCooccurren
 
 /// <summary> Create a histogram of occurrences of pairs 
 /// of words in a string.</summary>
-/// <param name = "src"> A string.</param>
+/// <param name = "src"> A string/text.</param>
 /// <returns> A histogram of the occurrences of pairs of words.</returns>
 let cooccurenceOfWords (src : string) : wordCooccurrences =
   let srcText = (Array.toList (src.Split ' '))
@@ -358,21 +359,25 @@ let cooccurenceOfWords (src : string) : wordCooccurrences =
   (List.sortBy (fun l -> 
     (getWord l)) (List.filter (fun lst -> (getWord lst) <> (string "")) wcList))
 
-/// <summary> </summary>
-/// <param name = "wCooc"> </param>
-/// <returns></returns>
+/// <summary> Generate a new word randomly from a 
+/// given wordcooccurence histogram</summary>
+/// <param name = "wCooc"> A word cooccurrence histogram.</param>
+/// <returns> A new word randomly generated from a 
+/// given wordcooccurence histogram</returns>
 let wHistFromWCoocs (wCooc : wordCooccurrences) : wordHistogram =
   let firstWord = (randomWord (List.init wCooc.Length (fun i -> 
     (getWord wCooc.[i], (List.sumBy (getVal) (getWHist wCooc.[i]))))))
   let fWIndex = (List.findIndex (fun (s,l) -> s = firstWord) wCooc)
   getWHist wCooc.[fWIndex]
 
-/// <summary> </summary>
-/// <param name = "nWords"> </param>
+/// <summary> Generate a string/text with nWords amount of words
+/// randomly generated from the word cooccurrence histogram.</summary>
+/// <param name = "nWords"> The amount of words to generate.</param>
 /// <param name = "nCount"> </param>
-/// <param name = "wCooc"> </param>
-/// <param name = "wHist"> </param>
-/// <returns></returns>
+/// <param name = "wCooc"> A word cooccurrence histogram.</param>
+/// <param name = "wHist"> A wordhistogram </param>
+/// <returns> A text with nWords amount of words
+/// randomly generated from the word cooccurrence histogram</returns>
 let rec wMChainHelper (nWords : int ) (nCount:int) (wCooc : wordCooccurrences) (wHist : wordHistogram) : string =
   if (wHist = [("", 1)]) then
     wMChainHelper (nWords) (nCount) wCooc (wHistFromWCoocs wCooc)
@@ -383,19 +388,22 @@ let rec wMChainHelper (nWords : int ) (nCount:int) (wCooc : wordCooccurrences) (
       word
     else
       word + (string " ") + (wMChainHelper nWords (nCount+1) wCooc (getWHist wCooc.[wordIndex]))
-      
-/// <summary> </summary>
-/// <param name = "wCooc"> </param>
-/// <param name = "nWords"> </param>
-/// <returns></returns>
+
+/// <summary> Generate a string/text with nWords amount of words
+/// randomly generated from the word cooccurrence histogram.</summary>
+/// <param name = "wCooc"> A word cooccurrence histogram.</param>
+/// <param name = "nWords"> The amount of words to generate.</param>
+/// <returns> A text with nWords amount of words
+/// randomly generated from the word cooccurrence histogram.</returns>
 let wordMarkovChain (wCooc : wordCooccurrences) (nWords : int) : string =
   (wMChainHelper nWords (0) wCooc [("",1)])
 
-/// <summary> </summary>
-/// <param name = "wS"> </param>
-/// <param name = "wL"> </param>
-/// <returns></returns>
-let newWordList (wS:wordCooccurrences) (wL:wordCooccurrences) =
+/// <summary> Make the shortest wordcooccurrence histogram
+/// into the length of the longest.</summary>
+/// <param name = "wS"> The shortest wordcooccurrence histogram</param>
+/// <param name = "wL"> The longest wordcooccurrence histogram</param>
+/// <returns> A new wordcooccurrence histogram</returns>
+let newWordList (wS:wordCooccurrences) (wL:wordCooccurrences) : wordCooccurrences =
   let wSWords = List.init wS.Length (fun i -> (getWord wS.[i]))
   (List.map (fun c -> 
     if (find 0 (getWord c) wSWords) <> -1 then 
@@ -404,20 +412,23 @@ let newWordList (wS:wordCooccurrences) (wL:wordCooccurrences) =
       (getWord c,List.init (getWHist c).Length (fun i -> 
         (getWord (getWHist c).[i]),0))) (wL))
 
-/// <summary> </summary>
-/// <param name = "w1">A word histogram</param>
-/// <param name = "w2">A word histogram</param>
-/// <returns> </returns>
+/// <summary> Compare two word histograms by
+/// finding the average sum of the squared differences. </summary>
+/// <param name = "w1"> A word histogram</param>
+/// <param name = "w2"> A word histogram</param>
+/// <returns> A double resembling the difference between two wordhistograms.</returns>
 let callDiffwHelper (w1 : wordHistogram) (w2 : wordHistogram) : (double) =
   if (histFromWHist w1).Length > (histFromWHist w2).Length then
     diffwHelp w1 w2 (histFromWHist w1) (histFromWHist w2)
   else
     diffwHelp w2 w1 (histFromWHist w2) (histFromWHist w1)
 
-/// <summary> </summary>
-/// <param name = "wL"> The list containing the longest </param>
-/// <param name = "wS"> </param>
-/// <returns> </returns>
+/// <summary> Compare two word-cooccurrence histograms by
+/// finding the average sum of the squared differences. </summary>
+/// <param name = "wL"> The longest wordcooccurence histogram.</param>
+/// <param name = "wS"> The shortest wordcooccurence histogram.</param>
+/// <returns> A double resembling the difference 
+/// between two word-cooccurrence histograms.</returns>
 let diffw2Help (wL : wordCooccurrences) (wS : wordCooccurrences) : (double) =
   let wNS = newWordList wS wL
   (List.fold2 (fun acc wCooc1 wCooc2 -> acc + (callDiffwHelper (getWHist wCooc1) (getWHist wCooc2))) 0.0 wNS wL)
