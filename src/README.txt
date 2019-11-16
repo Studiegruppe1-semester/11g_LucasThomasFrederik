@@ -4,3 +4,6 @@ Dette køres således:
 
 fsharpc -a textAnalysis.fsx
 fsharpc -r textAnalysis.dll testTextAnalysis.fsx
+
+Herefter køres filen:
+mono testTextAnalysis.mono
