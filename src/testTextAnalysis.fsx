@@ -1,4 +1,4 @@
-Open textAnalysis
+open textAnalysis
 
 printfn "7g4"
 printfn "White-box testing of readText"
