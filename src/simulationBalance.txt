@@ -1,0 +1,12 @@
+Mice:3 Tick number:1
+Mice:3 Tick number:2
+Mice:3 Tick number:3
+Mice:3 Tick number:4
+Mice:4 Tick number:5
+Mice:4 Tick number:6
+Mice:4 Tick number:7
+Mice:4 Tick number:8
+Mice:6 Tick number:9
+Mice:5 Tick number:10
+Mice:4 Tick number:11
+Mice:4 Tick number:12
