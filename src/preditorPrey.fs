@@ -8,10 +8,19 @@ let rnd = System.Random()
 
 /// <summary> </summary>
 /// <param name = ""> </param>
+/// <returns> </returns>
+let addCoords (a : (int*int)) (b : (int*int)) : (int*int) =
+    (fst a + fst b, snd a + snd b)
+
+/// <summary> The animal class.</summary>
+/// <param name = "startCoordinate"> The coordinates which 
+/// the animal starts on.</param>
+/// <param name = "startTick"> The tick which the animal was created on.</param>
 [<AbstractClass>]
 type Animal(startCoordinate : (int*int), startTick : int) = class
     let mutable coords = startCoordinate
     let mutable lastMovedTick = startTick
+
     /// <summary> </summary>
     /// <param name = ""> </param>
     /// <returns> </returns>
@@ -27,38 +36,46 @@ type Animal(startCoordinate : (int*int), startTick : int) = class
         and set(t:int) = lastMovedTick <- t
     abstract member Move : (Animal option [,]) -> (int * int) option
     default self.Move(_) = None
+    /// <summary> </summary>
+    /// <param name = ""> </param>
+    /// <returns> </returns>
+    member self.getCoordToGoTo (coords : (int*int)) (fields : (Animal option) [,]) (filter : (Animal -> bool)) : ((int*int) option) =
+        let mutable lst: ((int*int) list) = List.empty
+        if fst coords <> 0 then
+            lst <- (addCoords (-1, 0) coords)::lst
+        if fst coords <> ((Array2D.length1 fields)-1) then
+            lst <- (addCoords (1, 0) coords)::lst
+        if snd coords <> 0 then
+            lst <- (addCoords (0, -1) coords)::lst
+        if snd coords <> ((Array2D.length2 fields)-1) then
+            lst <- (addCoords (0, 1) coords)::lst
+        lst <- List.filter (fun coords -> 
+            match Array2D.get fields (fst coords) (snd coords) with 
+                None -> true
+                | Some(thing) -> filter thing) lst
+        if lst.IsEmpty then
+            None
+        else
+            Some(lst.[rnd.Next(0,lst.Length-1)])
 end
 
+/// <summary> Adds an animal to the fields, at the given coordinates.</summary>
+/// <param name = "x"> The x-coordinate of the animal to be added.</param>
+/// <param name = "y"> The x-coordinate of the animal to be added.</param>
+/// <param name = "anim"> The animal to add, either a mouse or an owl.</param>
+/// <param name = "fields"> The fields in which the animal is added to.</param>
+/// <returns> The changed fields.</returns>
 let addAnimal (x:int, y:int) (anim: (Animal)) (fields : (Animal option) [,]) =
     Array2D.set fields x y (Some(anim))
 
-let addCoords (a : (int*int)) (b : (int*int)) : (int*int) =
-    (fst a + fst b, snd a + snd b)
 
-let getCoordToGoTo (coords : (int*int)) (fields : (Animal option) [,]) (filter : (Animal -> bool)) : ((int*int) option) =
-    let mutable lst: ((int*int) list) = List.empty
-    if fst coords <> 0 then
-        lst <- (addCoords (-1, 0) coords)::lst
-    if fst coords <> ((Array2D.length1 fields)-1) then
-        lst <- (addCoords (1, 0) coords)::lst
-    if snd coords <> 0 then
-        lst <- (addCoords (0, -1) coords)::lst
-    if snd coords <> ((Array2D.length2 fields)-1) then
-        lst <- (addCoords (0, 1) coords)::lst
-    lst <- List.filter (fun coords -> 
-        match Array2D.get fields (fst coords) (snd coords) with 
-            None -> true
-            | Some(thing) -> filter thing) lst
-    if lst.IsEmpty then
-        None
-    else
-        Some(lst.[rnd.Next(0,lst.Length-1)])
-
+/// <summary> </summary>
+/// <param name = ""> </param>
 type Mouse(startCoordinate : (int*int), multiplyTicks : int, startTick : int) = class
     inherit Animal (startCoordinate, startTick)
     let mutable multiplyTimer = 1
     override self.Move(fs) =
-        match getCoordToGoTo self.Coordinate fs (fun _ -> false) with
+        match self.getCoordToGoTo self.Coordinate fs (fun _ -> false) with
         None -> None
         | Some(coords) ->
             (if multiplyTimer >= multiplyTicks then
@@ -73,7 +90,7 @@ end
 type Owl(startCoordinate : (int*int), startTick : int) = class
     inherit Animal (startCoordinate, startTick)
     override self.Move(fs) =
-        getCoordToGoTo self.Coordinate fs (fun anim -> anim :? Mouse)
+        self.getCoordToGoTo self.Coordinate fs (fun anim -> anim :? Mouse)
 end
 
 let makeAnewField (filter : (Animal -> bool)) (fields: (Animal option) [,]) (cur_tick : int) : (Animal option) [,] =
