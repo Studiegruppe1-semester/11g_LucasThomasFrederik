@@ -2,16 +2,29 @@ module preditorPrey
 
 let rnd = System.Random()
 
+/// <summary> </summary>
+/// <param name = ""> </param>
+/// <returns> </returns>
+
+/// <summary> </summary>
+/// <param name = ""> </param>
 [<AbstractClass>]
 type Animal(startCoordinate : (int*int), startTick : int) = class
     let mutable coords = startCoordinate
     let mutable lastMovedTick = startTick
+    /// <summary> </summary>
+    /// <param name = ""> </param>
+    /// <returns> </returns>
     member self.Coordinate
         with get() = coords
         and set(k: (int*int)) = coords <- k
+
+    /// <summary> </summary>
+    /// <param name = ""> </param>
+    /// <returns> </returns>
     member self.LastMovedTick
         with get() = lastMovedTick
-        and set(k:int) = lastMovedTick <- k
+        and set(t:int) = lastMovedTick <- t
     abstract member Move : (Animal option [,]) -> (int * int) option
     default self.Move(_) = None
 end
@@ -43,14 +56,14 @@ let getCoordToGoTo (coords : (int*int)) (fields : (Animal option) [,]) (filter :
 
 type Mouse(startCoordinate : (int*int), multiplyTicks : int, startTick : int) = class
     inherit Animal (startCoordinate, startTick)
-    let mutable multiplyTimer = 0
+    let mutable multiplyTimer = 1
     override self.Move(fs) =
         match getCoordToGoTo self.Coordinate fs (fun _ -> false) with
         None -> None
         | Some(coords) ->
             (if multiplyTimer >= multiplyTicks then
                 addAnimal coords (Mouse(coords, multiplyTicks,self.LastMovedTick+1)) fs
-                multiplyTimer <- 0
+                multiplyTimer <- 1
                 None
             else
                 multiplyTimer <- multiplyTimer+1
