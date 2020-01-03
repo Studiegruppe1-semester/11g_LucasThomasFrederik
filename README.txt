@@ -19,3 +19,5 @@ Eksploder:
 Balance:
   fsharpc -a preditorPrey.fs && fsharpc --nologo -r preditorPrey.dll simulate.fsx && ./simulate.exe 6 12 3 3 6
 
+For at kører white-box testing skal der skrives:
+  fsharpc -a preditorPrey.fs && fsharpc --nologo -r preditorPrey.dll testPreditorPrey.fsx && testPreditorPrey.exe
