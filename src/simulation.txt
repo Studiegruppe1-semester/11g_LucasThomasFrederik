@@ -1,3 +1,0 @@
-Initial state| Mice:1
-Tick number:1| Mice:1
-Tick number:2| Mice:2

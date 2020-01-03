@@ -21,9 +21,9 @@ let simulate args =
     env.Tegn()
     printfn "___"
     for i=1 to T do
+        (env.RunTick())
         text <- text + "Tick number:" + (string i) + ("| Mice:" + 
             (string (env.CountMice())) + "\n")
-        (env.RunTick())
         env.Tegn()
     editFile text
     0

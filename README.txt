@@ -14,10 +14,14 @@ På linux skal der huskes at gives execute permissions:
 Hvis det køres på linux skal der skrives:
 ./simulate.exe <>
 
-Eksploder:
-  fsharpc -a preditorPrey.fs && fsharpc --nologo -r preditorPrey.dll simulate.fsx && ./simulate.exe 15 20 3 6 6
 Balance:
-  fsharpc -a preditorPrey.fs && fsharpc --nologo -r preditorPrey.dll simulate.fsx && ./simulate.exe 6 12 3 3 6
+  fsharpc -a preditorPrey.fs && fsharpc --nologo -r preditorPrey.dll simulate.fsx && ./simulate.exe 5 12 2 6 6
+Eksploder:
+  fsharpc -a preditorPrey.fs && fsharpc --nologo -r preditorPrey.dll simulate.fsx && ./simulate.exe 10 12 1 3 6
+Forsvinder:
+  fsharpc -a preditorPrey.fs && fsharpc --nologo -r preditorPrey.dll simulate.fsx && ./simulate.exe 10 12 16 3 97
+
+
 
 For at kører white-box testing skal der skrives:
   fsharpc -a preditorPrey.fs && fsharpc --nologo -r preditorPrey.dll testPreditorPrey.fsx && testPreditorPrey.exe

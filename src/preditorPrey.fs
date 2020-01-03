@@ -17,6 +17,7 @@ let addCoords (a : (int*int)) (b : (int*int)) : (int*int) =
 type Animal(startCoordinate : (int*int), startTick : int) = class
     let mutable coords = startCoordinate
     let mutable lastMovedTick = startTick
+    member self.StartTick = startTick
     member self.Coordinate
         with get() = coords
         and set(k: (int*int)) = coords <- k
@@ -80,15 +81,15 @@ type Mouse(startCoordinate : (int*int), multiplyTicks : int, startTick : int) = 
     /// or none if none is available.</returns>
     override self.Move(fs) =
         match self.getCoordToGoTo self.Coordinate fs (fun _ -> false) with
-        None -> None
-        | Some(coords) ->
-            (if multiplyCounter >= multiplyTicks then
-                addAnimal coords (Mouse(coords, multiplyTicks,self.LastMovedTick+1)) fs
-                multiplyCounter <- 1
-                None
-            else
-                multiplyCounter <- multiplyCounter+1
-                Some(coords))
+            None -> None
+            | Some(coords) ->
+                (if multiplyCounter >= multiplyTicks then
+                    addAnimal coords (Mouse(coords, multiplyTicks,self.LastMovedTick)) fs
+                    multiplyCounter <- 1
+                    None
+                else
+                    multiplyCounter <- multiplyCounter+1
+                    Some(coords))
 end
 
 /// <summary> The owl class.</summary>
@@ -153,14 +154,16 @@ type Environments(size : int, multiplyTime : int, mice: int, owls : int) = class
                     | Some(animal) ->
                         if animal.LastMovedTick >= cur_tick then Some(animal) else
                             if filter animal then Some(animal) else
+                            animal.LastMovedTick <- cur_tick
                             (match animal.Move(fields) with
                                 None -> Some(animal)
-                                | Some((x,y)) -> animal.Coordinate <- (x,y); animal.LastMovedTick <- cur_tick; Array2D.set fields x y (Some(animal));None))
+                                | Some((x,y)) -> animal.Coordinate <- (x,y); Array2D.set fields x y (Some(animal));None))
         )
         fields
 
     member self.Fields
         with get() = fields
+        and set(nFields : (Animal option [,])) = fields <- nFields
 
     /// <summary> Runs the simulation for the fields/environment for 1 tick.</summary>
     /// <returns> The changed environment/fields.</returns>

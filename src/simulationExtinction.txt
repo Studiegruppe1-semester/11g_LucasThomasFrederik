@@ -1,0 +1,13 @@
+Initial state| Mice:3
+Tick number:1| Mice:0
+Tick number:2| Mice:0
+Tick number:3| Mice:0
+Tick number:4| Mice:0
+Tick number:5| Mice:0
+Tick number:6| Mice:0
+Tick number:7| Mice:0
+Tick number:8| Mice:0
+Tick number:9| Mice:0
+Tick number:10| Mice:0
+Tick number:11| Mice:0
+Tick number:12| Mice:0
