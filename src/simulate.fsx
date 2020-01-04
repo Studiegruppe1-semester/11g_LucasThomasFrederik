@@ -24,6 +24,5 @@ let simulate args =
         (env.RunTick())
         text <- text + "Tick number:" + (string i) + ("| Mice:" + 
             (string (env.CountMice())) + "\n")
-        env.Tegn()
     editFile text
     0

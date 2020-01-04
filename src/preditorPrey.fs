@@ -172,16 +172,6 @@ type Environments(size : int, multiplyTime : int, mice: int, owls : int) = class
         let newFields = self.changeFields (fun a -> a :? Mouse) fields ticks
         fields <- self.changeFields (fun a -> a :? Owl) newFields ticks
 
-    member self.Tegn() =
-        for i=0 to size-1 do
-            for j=0 to size-1 do
-                let c = match (Array2D.get fields i j) with
-                        None -> "+"
-                        | Some(a) -> if a :? Mouse then "m" else if a :? Owl then "o" else "!"
-                printf "%s" (c)
-            printf "\n"
-        printf "\n"
-
     /// <summary> Counts the mice</summary>
     /// <returns> The amount of mice in the fields/environment</returns>
     member self.CountMice() =
