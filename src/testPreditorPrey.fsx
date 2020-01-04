@@ -50,6 +50,17 @@ type EnvironmentTest() = class
         match Array2D.get env.Fields 0 0 with 
                 None -> false
                 | Some(animal) -> ((animal.getCoordToGoTo coords env.Fields (fun _ -> false) = None) && env.CountMice() = 4)
+    member self.owlMoves() =
+        let ticks = 1
+        let coords = (0,0)
+        let env = new Environments(2, 5, 0, 0)
+        let owl = new Owl(coords, 0)
+        let mutable fields = env.Fields
+        (addAnimal coords owl fields)
+        env.Fields <- fields
+        for _i=1 to ticks do
+            env.RunTick()
+        ((Array2D.get env.Fields 0 0) = None)
     member self.noAnimals() =
         let ticks = 1 
         let env = new Environments(2, 5, 0, 0)
@@ -62,6 +73,7 @@ type EnvironmentTest() = class
         printfn "MiceMoves: %A" <| self.MiceMoves()
         printfn "MiceDoesntMoveWhenMultiplying: %A" <| self.MiceDoesntMoveWhenMultiplying()
         printfn "MiceCantMove: %A" <| self.MiceCantMove()
+        printfn "owlMoves: %A" <| self.owlMoves()
         printfn "noAnimals: %A" <| self.noAnimals()
 end
 
