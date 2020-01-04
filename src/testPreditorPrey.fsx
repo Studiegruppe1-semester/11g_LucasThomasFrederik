@@ -9,7 +9,7 @@ type EnvironmentTest() = class
     member self.MouseMultiplied() =
         let ticks = 2
         let mice = 1
-        let env = new Environments(2, 1, mice, 0)        
+        let env = new Environments(3, 1, mice, 0)        
         for _i=1 to ticks do
             env.RunTick()
         (env.CountMice() = 4)
